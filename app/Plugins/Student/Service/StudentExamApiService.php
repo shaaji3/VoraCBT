@@ -9,8 +9,11 @@ use App\Domain\Exam\Service\SessionRecoveryService;
 use App\Domain\Proctoring\Service\ProctoringService;
 use App\Domain\Proctoring\Service\SessionIntegrityService;
 use App\Plugins\Support\RouteAuthorizer;
+use App\Plugins\Support\Service\AuthContextService;
+use DateTime;
 use Doctrine\DBAL\Connection;
 use Exception;
+use Ramsey\Uuid\Uuid;
 
 final class StudentExamApiService
 {
@@ -19,6 +22,7 @@ final class StudentExamApiService
         private readonly ProctoringService $proctoringService,
         private readonly SessionRecoveryService $sessionRecoveryService,
         private readonly SessionIntegrityService $sessionIntegrityService,
+        private readonly AuthContextService $authContextService,
     ) {
     }
 
@@ -58,6 +62,222 @@ final class StudentExamApiService
                 );
 
                 ApiResponse::json(['in_progress' => $inProgress, 'upcoming' => $upcoming, 'history' => $history])->send();
+            } catch (Exception $e) {
+                ApiResponse::error($e->getMessage(), 500)->send();
+            }
+        });
+    }
+
+    public function exam(string $sessionId): void
+    {
+        RouteAuthorizer::authorize(['student', 'admin', 'super_admin'], function () use ($sessionId): void {
+            try {
+                $session = $this->db->fetchAssociative(
+                    'SELECT s.id, s.user_id, s.status, e.title, COALESCE(e.duration_minutes, 0) AS duration_minutes
+                     FROM exam_sessions s
+                     INNER JOIN exam_templates e ON e.id = s.exam_template_id
+                     WHERE s.id = ?',
+                    [$sessionId]
+                );
+
+                if (!$session) {
+                    ApiResponse::error('Exam session not found', 404)->send();
+                    return;
+                }
+
+                if (!$this->canAccessSession($session)) {
+                    ApiResponse::error('Forbidden', 403)->send();
+                    return;
+                }
+
+                $rows = $this->db->fetchAllAssociative(
+                    'SELECT q.id, q.type, q.content, q.metadata, sq.exam_section_id, sq.question_order
+                     FROM exam_session_questions sq
+                     INNER JOIN questions q ON q.id = sq.question_id
+                     WHERE sq.exam_session_id = ?
+                     ORDER BY sq.question_order ASC',
+                    [$sessionId]
+                );
+
+                $questions = array_map(function (array $row): array {
+                    $content = is_string($row['content']) ? json_decode($row['content'], true) : ($row['content'] ?? []);
+                    $metadata = is_string($row['metadata'] ?? null) ? json_decode((string) $row['metadata'], true) : ($row['metadata'] ?? []);
+
+                    return [
+                        'id' => $row['id'],
+                        'type' => $row['type'],
+                        'section_id' => $row['exam_section_id'],
+                        'prompt' => $content['prompt'] ?? $content['question'] ?? '',
+                        'options' => $content['options'] ?? [],
+                        'content' => $content,
+                        'metadata' => is_array($metadata) ? $metadata : [],
+                    ];
+                }, $rows);
+
+                ApiResponse::json([
+                    'id' => $session['id'],
+                    'title' => $session['title'],
+                    'status' => $session['status'],
+                    'duration_seconds' => ((int) $session['duration_minutes']) * 60,
+                    'session_token' => $this->proctoringService->getSessionToken($sessionId),
+                    'questions' => $questions,
+                ])->send();
+            } catch (Exception $e) {
+                ApiResponse::error($e->getMessage(), 500)->send();
+            }
+        });
+    }
+
+    public function saveAnswer(string $sessionId): void
+    {
+        RouteAuthorizer::authorize(['student', 'admin', 'super_admin'], function () use ($sessionId): void {
+            try {
+                $session = $this->db->fetchAssociative('SELECT id, user_id, status FROM exam_sessions WHERE id = ?', [$sessionId]);
+                if (!$session) {
+                    ApiResponse::error('Exam session not found', 404)->send();
+                    return;
+                }
+
+                if (!$this->canAccessSession($session)) {
+                    ApiResponse::error('Forbidden', 403)->send();
+                    return;
+                }
+
+                $input = json_decode((string) file_get_contents('php://input'), true);
+                $questionId = $input['question_id'] ?? null;
+                $token = $input['token'] ?? null;
+
+                if (!$questionId || !$token) {
+                    ApiResponse::error('Missing question_id or token', 400)->send();
+                    return;
+                }
+
+                if (!$this->sessionIntegrityService->validateSessionToken($sessionId, (string) $token)) {
+                    ApiResponse::error('Invalid session token', 403)->send();
+                    return;
+                }
+
+                if (($session['status'] ?? '') !== 'in_progress' && ($session['status'] ?? '') !== 'started') {
+                    ApiResponse::error('Session is not active', 409)->send();
+                    return;
+                }
+
+                $now = (new DateTime())->format('Y-m-d H:i:s');
+                $existingId = $this->db->fetchOne(
+                    'SELECT id FROM exam_session_answers WHERE exam_session_id = ? AND question_id = ?',
+                    [$sessionId, $questionId]
+                );
+
+                $answerPayload = [
+                    'answer' => $input['answer'] ?? null,
+                    'saved_at' => $now,
+                ];
+
+                if ($existingId) {
+                    $this->db->update('exam_session_answers', [
+                        'answer_payload' => json_encode($answerPayload, JSON_THROW_ON_ERROR),
+                        'updated_at' => $now,
+                    ], ['id' => $existingId]);
+                } else {
+                    $this->db->insert('exam_session_answers', [
+                        'id' => Uuid::uuid4()->toString(),
+                        'exam_session_id' => $sessionId,
+                        'question_id' => $questionId,
+                        'answer_payload' => json_encode($answerPayload, JSON_THROW_ON_ERROR),
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ]);
+                }
+
+                ApiResponse::json(['status' => 'saved'])->send();
+            } catch (Exception $e) {
+                ApiResponse::error($e->getMessage(), 500)->send();
+            }
+        });
+    }
+
+    public function submit(string $sessionId): void
+    {
+        RouteAuthorizer::authorize(['student', 'admin', 'super_admin'], function () use ($sessionId): void {
+            try {
+                $session = $this->db->fetchAssociative('SELECT id, user_id, status FROM exam_sessions WHERE id = ?', [$sessionId]);
+                if (!$session) {
+                    ApiResponse::error('Exam session not found', 404)->send();
+                    return;
+                }
+
+                if (!$this->canAccessSession($session)) {
+                    ApiResponse::error('Forbidden', 403)->send();
+                    return;
+                }
+
+                $input = json_decode((string) file_get_contents('php://input'), true);
+                $token = $input['token'] ?? null;
+                if (!$token || !$this->sessionIntegrityService->validateSessionToken($sessionId, (string) $token)) {
+                    ApiResponse::error('Invalid session token', 403)->send();
+                    return;
+                }
+
+                if (($session['status'] ?? '') === 'submitted' || ($session['status'] ?? '') === 'graded') {
+                    ApiResponse::json(['status' => 'submitted'])->send();
+                    return;
+                }
+
+                $now = (new DateTime())->format('Y-m-d H:i:s');
+                $this->sessionIntegrityService->lockSession($sessionId);
+                $this->sessionIntegrityService->generateIntegrityHash($sessionId);
+                $this->db->update('exam_sessions', ['end_time' => $now, 'updated_at' => $now], ['id' => $sessionId]);
+
+                ApiResponse::json(['status' => 'submitted'])->send();
+            } catch (Exception $e) {
+                ApiResponse::error($e->getMessage(), 500)->send();
+            }
+        });
+    }
+
+    public function proctoringEventBySession(string $sessionId): void
+    {
+        RouteAuthorizer::authorize(['student', 'admin', 'super_admin'], function () use ($sessionId): void {
+            try {
+                $session = $this->db->fetchAssociative('SELECT id, user_id FROM exam_sessions WHERE id = ?', [$sessionId]);
+                if (!$session) {
+                    ApiResponse::error('Exam session not found', 404)->send();
+                    return;
+                }
+
+                if (!$this->canAccessSession($session)) {
+                    ApiResponse::error('Forbidden', 403)->send();
+                    return;
+                }
+
+                $input = json_decode((string) file_get_contents('php://input'), true);
+                $token = $input['token'] ?? null;
+                $proctoringSessionId = is_string($token) ? $this->proctoringService->getSessionIdByToken($token) : null;
+
+                if (!$proctoringSessionId) {
+                    $proctoringSessionId = $this->db->fetchOne(
+                        'SELECT id FROM proctoring_sessions WHERE exam_session_id = ? ORDER BY start_time DESC LIMIT 1',
+                        [$sessionId]
+                    );
+                }
+
+                if (!$proctoringSessionId) {
+                    ApiResponse::error('Proctoring session not found', 404)->send();
+                    return;
+                }
+
+                $eventType = (string) ($input['type'] ?? 'client_event');
+                $description = (string) ($input['description'] ?? '');
+                $severity = (string) ($input['severity'] ?? 'warning');
+
+                $this->proctoringService->logEvent(
+                    (string) $proctoringSessionId,
+                    $eventType,
+                    ['description' => $description, 'raw' => $input],
+                    $severity
+                );
+
+                ApiResponse::json(['status' => 'logged'])->send();
             } catch (Exception $e) {
                 ApiResponse::error($e->getMessage(), 500)->send();
             }
@@ -172,5 +392,34 @@ final class StudentExamApiService
                 ApiResponse::error($e->getMessage(), 500)->send();
             }
         });
+    }
+
+    private function canAccessSession(array $session): bool
+    {
+        $user = $this->currentUser();
+        if ($user === null) {
+            return false;
+        }
+
+        if (($user['role'] ?? '') === 'student') {
+            return (string) ($session['user_id'] ?? '') === (string) ($user['id'] ?? '');
+        }
+
+        return in_array($user['role'] ?? '', ['admin', 'super_admin'], true);
+    }
+
+    private function currentUser(): ?array
+    {
+        $id = $this->authContextService->currentUserId();
+        if ($id === null) {
+            return null;
+        }
+
+        $user = $this->db->fetchAssociative('SELECT id, role FROM users WHERE id = ? LIMIT 1', [$id]);
+        if (!$user || !is_string($user['id'] ?? null) || !is_string($user['role'] ?? null)) {
+            return null;
+        }
+
+        return ['id' => $user['id'], 'role' => $user['role']];
     }
 }

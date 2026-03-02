@@ -17,4 +17,7 @@ final class AdminWebController
     public function analytics(): void { $this->service->analytics(); }
     public function rolesPermissions(): void { $this->service->rolesPermissions(); }
     public function settings(): void { $this->service->settings(); }
+    public function questionRepository(): void { $this->service->questionRepository(); }
+    public function bulkUpload(): void { $this->service->bulkUpload(); }
+    public function manualGrading(): void { $this->service->manualGrading(); }
 }

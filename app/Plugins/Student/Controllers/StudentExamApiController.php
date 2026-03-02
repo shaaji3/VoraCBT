@@ -17,6 +17,26 @@ final class StudentExamApiController
         $this->service->overview();
     }
 
+    public function exam(string $sessionId): void
+    {
+        $this->service->exam($sessionId);
+    }
+
+    public function saveAnswer(string $sessionId): void
+    {
+        $this->service->saveAnswer($sessionId);
+    }
+
+    public function submit(string $sessionId): void
+    {
+        $this->service->submit($sessionId);
+    }
+
+    public function proctoringEventBySession(string $sessionId): void
+    {
+        $this->service->proctoringEventBySession($sessionId);
+    }
+
     public function proctoringEvent(): void
     {
         $this->service->proctoringEvent();

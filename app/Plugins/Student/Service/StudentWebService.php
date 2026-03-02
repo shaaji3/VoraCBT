@@ -17,8 +17,9 @@ final class StudentWebService
         $this->renderer->render('pages/exam-selection.html');
     }
 
-    public function exam(): void
+    public function exam(?string $sessionId = null): void
     {
+        // Template currently bootstraps runtime client-side; sessionId is read from URL path/query by JS.
         $this->renderer->render('pages/active-exam.html');
     }
 
