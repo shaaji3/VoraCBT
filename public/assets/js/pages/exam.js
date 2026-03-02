@@ -15,9 +15,16 @@ class ExamController {
         this.timer = null;
         this.proctoring = null;
         this.examData = null;
+        this.sessionToken = null;
     }
 
     getExamIdFromUrl() {
+        const pathMatch = window.location.pathname.match(/^\/student\/exams\/([^/?#]+)/);
+        if (pathMatch && pathMatch[1]) {
+            return decodeURIComponent(pathMatch[1]);
+        }
+
+        // Backward compatibility with legacy /student/exam?id=... route
         const params = new URLSearchParams(window.location.search);
         return params.get('id');
     }
@@ -34,6 +41,7 @@ class ExamController {
             }
 
             this.examData = examData;
+            this.sessionToken = examData.session_token || null;
 
             // Handle Sections vs Flat list
             if (examData.sections) {
@@ -58,7 +66,7 @@ class ExamController {
             this.timer.start();
 
             // Initialize Proctoring
-            this.proctoring = new Proctoring(this.examId, this.api);
+            this.proctoring = new Proctoring(this.examId, this.api, this.sessionToken);
             this.proctoring.start();
 
             // Render First Question
@@ -155,7 +163,7 @@ class ExamController {
         // Auto-save logic (debounced ideally, but here simple async call)
         console.log(`Saving answer for ${questionId}: ${answer}`);
         try {
-            await this.api.post(`/student/exams/${this.examId}/answers`, { question_id: questionId, answer });
+            await this.api.post(`/student/exams/${this.examId}/answers`, { question_id: questionId, answer, token: this.sessionToken });
         } catch (e) {
             console.error('Auto-save failed', e);
         }
@@ -175,7 +183,7 @@ class ExamController {
     async submitExam(isAuto = false) {
         try {
             console.log('Submitting exam...', this.answers);
-            await this.api.post(`/student/exams/${this.examId}/submit`, { answers: this.answers, is_auto: isAuto });
+            await this.api.post(`/student/exams/${this.examId}/submit`, { answers: this.answers, is_auto: isAuto, token: this.sessionToken });
             window.location.href = '/student/dashboard';
         } catch (e) {
             console.error('Submission failed', e);

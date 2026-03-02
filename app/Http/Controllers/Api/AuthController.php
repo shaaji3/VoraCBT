@@ -6,6 +6,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Core\Http\ApiResponse;
 use App\Core\Database\DatabaseManager;
+use DateTimeImmutable;
+use Firebase\JWT\JWT;
 
 class AuthController
 {
@@ -63,8 +65,28 @@ class AuthController
             $redirect = '/student/dashboard';
         }
 
+        $jwtSecret = $_ENV['JWT_SECRET'] ?? '';
+        if ($jwtSecret === '') {
+            ApiResponse::error('JWT secret is not configured', 500)->send();
+            return;
+        }
+
+        $now = new DateTimeImmutable();
+        $expiresAt = $now->modify('+8 hours');
+
+        $token = JWT::encode([
+            'sub' => $user['id'],
+            'id' => $user['id'],
+            'role' => $user['role'],
+            'iat' => $now->getTimestamp(),
+            'exp' => $expiresAt->getTimestamp(),
+        ], $jwtSecret, 'HS256');
+
+        $this->issueAuthCookie($token, $expiresAt);
+
         ApiResponse::json([
             'message' => 'Login successful',
+            'expires_at' => $expiresAt->format(DATE_ATOM),
             'user' => [
                 'id' => $user['id'],
                 'username' => $user['username'],
@@ -81,7 +103,36 @@ class AuthController
         }
 
         session_destroy();
+        $this->clearAuthCookie();
 
         ApiResponse::json(['message' => 'Logged out successfully'])->send();
+    }
+
+    private function issueAuthCookie(string $token, DateTimeImmutable $expiresAt): void
+    {
+        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+
+        setcookie('auth_token', $token, [
+            'expires' => $expiresAt->getTimestamp(),
+            'path' => '/',
+            'secure' => $isHttps,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+    }
+
+    private function clearAuthCookie(): void
+    {
+        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+
+        setcookie('auth_token', '', [
+            'expires' => time() - 3600,
+            'path' => '/',
+            'secure' => $isHttps,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
     }
 }

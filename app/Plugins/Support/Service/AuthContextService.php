@@ -20,12 +20,19 @@ final class AuthContextService
         $headers = function_exists('getallheaders') ? getallheaders() : [];
         $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
 
-        if (!preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+        $jwt = null;
+        if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+            $jwt = $matches[1];
+        } elseif (isset($_COOKIE['auth_token']) && is_string($_COOKIE['auth_token']) && $_COOKIE['auth_token'] !== '') {
+            $jwt = $_COOKIE['auth_token'];
+        }
+
+        if ($jwt === null) {
             return null;
         }
 
         try {
-            $decoded = JWT::decode($matches[1], new Key($jwtSecret, 'HS256'));
+            $decoded = JWT::decode($jwt, new Key($jwtSecret, 'HS256'));
         } catch (Exception $e) {
             return null;
         }
