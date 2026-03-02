@@ -73,7 +73,10 @@ if (($_ENV['APP_DEBUG'] ?? 'false') === 'true') {
     error_reporting(0);
 }
 
-// 4. Routing Dispatch
+// 4. Plugin bootstrapping
+(new PluginManager())->loadAndBoot();
+
+// 5. Routing Dispatch
 use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use function FastRoute\simpleDispatcher;
@@ -81,6 +84,8 @@ use App\Http\Middleware\RateLimitMiddleware;
 use App\Infrastructure\Cache\FileCache;
 use App\Core\Http\Response;
 use App\Http\Middleware\CsrfMiddleware;
+use App\Core\Routing\PluginRouteRegistrar;
+use App\Core\Plugins\PluginManager;
 
 // Define route collector callback
 $dispatcher = simpleDispatcher(function(RouteCollector $r) {
@@ -90,11 +95,20 @@ $dispatcher = simpleDispatcher(function(RouteCollector $r) {
         $apiRoutes($r);
     }
 
-    // Load routes from routes/web.php
-    if (file_exists(__DIR__ . '/../routes/web.php')) {
-        $webRoutes = require __DIR__ . '/../routes/web.php';
-        if (is_callable($webRoutes)) {
-            $webRoutes($r);
+    $usePluginRouting = (($_ENV['APP_PLUGIN_ROUTING'] ?? 'false') === 'true');
+    $pluginRoutingFallback = (($_ENV['APP_PLUGIN_ROUTING_FALLBACK'] ?? 'true') === 'true');
+
+    if ($usePluginRouting) {
+        PluginRouteRegistrar::register($r, 'web');
+    }
+
+    if (!$usePluginRouting || $pluginRoutingFallback) {
+        // Load legacy web routes as default path or fallback while migration is in progress.
+        if (file_exists(__DIR__ . '/../routes/web.php')) {
+            $webRoutes = require __DIR__ . '/../routes/web.php';
+            if (is_callable($webRoutes)) {
+                $webRoutes($r);
+            }
         }
     }
 });

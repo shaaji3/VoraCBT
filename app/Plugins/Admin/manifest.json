@@ -1,0 +1,8 @@
+{
+  "name": "Admin",
+  "version": "0.1.0",
+  "description": "Admin web routes and module scaffold",
+  "providers": [
+    "App\\Plugins\\Admin\\AdminServiceProvider"
+  ]
+}
