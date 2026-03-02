@@ -22,3 +22,4 @@ Only templates are committed (no secrets).
 - `ENFORCE_HTTPS=true` enables HTTPS-only redirect (HTTP -> HTTPS, 308) and sends HSTS (`Strict-Transport-Security`).
 - `JWT_SECRET` is required in production boot path and must be injected via secret manager/pipeline.
 - Browser web responses expose `X-CSRF-Token` generated from server session; state-changing non-API requests must include this token via `X-CSRF-Token` header or `_csrf` form field.
+- `APP_PLUGIN_ROUTING=true` (default) enables plugin route registration (`app/Plugins/*/routes/{web,api}.php`) during bootstrap; legacy `routes/web.php` fallback has been removed from runtime dispatch.

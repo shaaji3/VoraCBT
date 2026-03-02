@@ -1,0 +1,8 @@
+{
+  "name": "Teacher",
+  "version": "0.1.0",
+  "description": "Teacher web module and routes",
+  "providers": [
+    "App\\Plugins\\Teacher\\TeacherServiceProvider"
+  ]
+}
