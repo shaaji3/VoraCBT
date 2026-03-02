@@ -22,13 +22,14 @@ class SyncService
 
     public function syncStudents(): array
     {
-        $response = $this->api->request('GET', '/students');
+        $response = $this->api->request('GET', '/api/v1/students');
 
         if ($response['status'] !== 200) {
             throw new Exception("Failed to fetch students: " . $response['body']);
         }
 
-        $students = json_decode($response['body'], true, 512, JSON_THROW_ON_ERROR);
+        $studentsPayload = json_decode($response['body'], true, 512, JSON_THROW_ON_ERROR);
+        $students = $studentsPayload['students'] ?? $studentsPayload;
         $synced = 0;
         $errors = 0;
 
