@@ -1,8 +1,0 @@
-{
-  "name": "Student",
-  "version": "0.1.0",
-  "description": "Student web routes and module scaffold",
-  "providers": [
-    "App\\Plugins\\Student\\StudentServiceProvider"
-  ]
-}
