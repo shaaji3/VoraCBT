@@ -6,6 +6,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Core\Http\ApiResponse;
 use App\Core\Database\DatabaseManager;
+use DateTimeImmutable;
+use Firebase\JWT\JWT;
 
 class AuthController
 {
@@ -63,8 +65,28 @@ class AuthController
             $redirect = '/student/dashboard';
         }
 
+        $jwtSecret = $_ENV['JWT_SECRET'] ?? '';
+        if ($jwtSecret === '') {
+            ApiResponse::error('JWT secret is not configured', 500)->send();
+            return;
+        }
+
+        $now = new DateTimeImmutable();
+        $expiresAt = $now->modify('+8 hours');
+
+        $token = JWT::encode([
+            'sub' => $user['id'],
+            'id' => $user['id'],
+            'role' => $user['role'],
+            'iat' => $now->getTimestamp(),
+            'exp' => $expiresAt->getTimestamp(),
+        ], $jwtSecret, 'HS256');
+
         ApiResponse::json([
             'message' => 'Login successful',
+            'token' => $token,
+            'token_type' => 'Bearer',
+            'expires_at' => $expiresAt->format(DATE_ATOM),
             'user' => [
                 'id' => $user['id'],
                 'username' => $user['username'],

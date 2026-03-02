@@ -37,6 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
             btnIcon.textContent = 'check_circle';
             btnIcon.classList.remove('d-none');
 
+            const token = response?.data?.token;
+            if (token) {
+                localStorage.setItem('auth_token', token);
+            }
+
             // Redirect on success
             setTimeout(() => {
                 window.location.href = response.data?.redirect || '/';
