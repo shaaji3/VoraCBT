@@ -103,7 +103,36 @@ class AuthController
         }
 
         session_destroy();
+        $this->clearAuthCookie();
 
         ApiResponse::json(['message' => 'Logged out successfully'])->send();
+    }
+
+    private function issueAuthCookie(string $token, DateTimeImmutable $expiresAt): void
+    {
+        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+
+        setcookie('auth_token', $token, [
+            'expires' => $expiresAt->getTimestamp(),
+            'path' => '/',
+            'secure' => $isHttps,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+    }
+
+    private function clearAuthCookie(): void
+    {
+        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+
+        setcookie('auth_token', '', [
+            'expires' => time() - 3600,
+            'path' => '/',
+            'secure' => $isHttps,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
     }
 }

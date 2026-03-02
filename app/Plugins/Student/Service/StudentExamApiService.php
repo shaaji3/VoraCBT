@@ -30,11 +30,19 @@ final class StudentExamApiService
     {
         RouteAuthorizer::authorize(['student', 'admin', 'super_admin'], function (): void {
             try {
-                $userId = $_GET['user_id'] ?? null;
-                if (!$userId) {
-                    ApiResponse::error('Missing user_id', 400)->send();
+                $currentUser = $this->currentUser();
+                if ($currentUser === null) {
+                    ApiResponse::error('Unauthorized', 401)->send();
                     return;
                 }
+
+                $requestedUserId = $_GET['user_id'] ?? null;
+                $isAdmin = in_array($currentUser['role'] ?? '', ['admin', 'super_admin'], true);
+
+                // Students can only access their own overview. Admin roles may inspect another user overview.
+                $userId = ($isAdmin && is_string($requestedUserId) && $requestedUserId !== '')
+                    ? $requestedUserId
+                    : $currentUser['id'];
 
                 $inProgress = $this->db->fetchAllAssociative(
                     "SELECT s.id, s.status, s.start_time, e.title, e.subject, e.duration_minutes

@@ -25,6 +25,97 @@ final class AdminApiService
     ) {
     }
 
+
+    public function dashboardOverview(): void
+    {
+        RouteAuthorizer::authorize(['admin', 'super_admin'], function (): void {
+            try {
+                $db = DatabaseManager::getConnection();
+                $summary = [
+                    'students' => (int) $db->fetchOne("SELECT COUNT(*) FROM users WHERE role = 'student'"),
+                    'teachers' => (int) $db->fetchOne("SELECT COUNT(*) FROM users WHERE role IN ('teacher', 'staff')"),
+                    'active_exams' => (int) $db->fetchOne("SELECT COUNT(*) FROM exam_sessions WHERE status IN ('started', 'in_progress')"),
+                    'pending_manual_grading' => (int) $db->fetchOne("SELECT COUNT(*) FROM exam_session_answers WHERE marks_obtained IS NULL"),
+                ];
+
+                ApiResponse::json($summary)->send();
+            } catch (Exception $e) {
+                ApiResponse::error($e->getMessage(), 500)->send();
+            }
+        });
+    }
+
+    public function analyticsSummary(): void
+    {
+        RouteAuthorizer::authorize(['admin', 'super_admin'], function (): void {
+            try {
+                $db = DatabaseManager::getConnection();
+                $rows = $db->fetchAllAssociative(
+                    "SELECT status, COUNT(*) AS count
+                     FROM exam_sessions
+                     GROUP BY status"
+                );
+
+                ApiResponse::json(['sessions_by_status' => $rows])->send();
+            } catch (Exception $e) {
+                ApiResponse::error($e->getMessage(), 500)->send();
+            }
+        });
+    }
+
+    public function rolesSummary(): void
+    {
+        RouteAuthorizer::authorize(['admin', 'super_admin'], function (): void {
+            try {
+                $rows = DatabaseManager::getConnection()->fetchAllAssociative(
+                    "SELECT role, COUNT(*) AS count FROM users GROUP BY role ORDER BY role ASC"
+                );
+                ApiResponse::json(['users_by_role' => $rows])->send();
+            } catch (Exception $e) {
+                ApiResponse::error($e->getMessage(), 500)->send();
+            }
+        });
+    }
+
+    public function questionsSummary(): void
+    {
+        RouteAuthorizer::authorize(['admin', 'super_admin'], function (): void {
+            try {
+                $db = DatabaseManager::getConnection();
+                $total = (int) $db->fetchOne('SELECT COUNT(*) FROM questions WHERE archived_at IS NULL');
+                $byType = $db->fetchAllAssociative(
+                    'SELECT type, COUNT(*) AS count FROM questions WHERE archived_at IS NULL GROUP BY type ORDER BY type ASC'
+                );
+
+                ApiResponse::json(['total' => $total, 'by_type' => $byType])->send();
+            } catch (Exception $e) {
+                ApiResponse::error($e->getMessage(), 500)->send();
+            }
+        });
+    }
+
+    public function pendingGradingSummary(): void
+    {
+        RouteAuthorizer::authorize(['admin', 'super_admin'], function (): void {
+            try {
+                $rows = DatabaseManager::getConnection()->fetchAllAssociative(
+                    "SELECT a.exam_session_id, COUNT(*) AS ungraded_answers
+                     FROM exam_session_answers a
+                     JOIN exam_sessions s ON s.id = a.exam_session_id
+                     WHERE a.marks_obtained IS NULL
+                       AND s.status IN ('submitted', 'completed')
+                     GROUP BY a.exam_session_id
+                     ORDER BY ungraded_answers DESC
+                     LIMIT 50"
+                );
+
+                ApiResponse::json(['items' => $rows, 'count' => count($rows)])->send();
+            } catch (Exception $e) {
+                ApiResponse::error($e->getMessage(), 500)->send();
+            }
+        });
+    }
+
     public function previewImport(): void
     {
         RouteAuthorizer::authorize(['admin', 'super_admin'], function (): void {

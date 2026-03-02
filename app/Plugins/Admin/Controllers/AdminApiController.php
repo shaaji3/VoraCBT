@@ -12,6 +12,32 @@ final class AdminApiController
     {
     }
 
+
+    public function dashboardOverview(): void
+    {
+        $this->service->dashboardOverview();
+    }
+
+    public function analyticsSummary(): void
+    {
+        $this->service->analyticsSummary();
+    }
+
+    public function rolesSummary(): void
+    {
+        $this->service->rolesSummary();
+    }
+
+    public function questionsSummary(): void
+    {
+        $this->service->questionsSummary();
+    }
+
+    public function pendingGradingSummary(): void
+    {
+        $this->service->pendingGradingSummary();
+    }
+
     public function previewImport(): void
     {
         $this->service->previewImport();

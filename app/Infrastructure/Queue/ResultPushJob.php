@@ -6,6 +6,7 @@ namespace App\Infrastructure\Queue;
 
 use App\Integration\Service\SmsApiClient;
 use App\Core\Database\DatabaseManager;
+use App\Integration\Service\PayloadSignatureService;
 use Exception;
 
 class ResultPushJob implements JobInterface
@@ -28,8 +29,20 @@ class ResultPushJob implements JobInterface
         $attempt = $this->data['attempt'] ?? 1;
 
         try {
-            $response = $this->api->request('POST', '/results', [
-                'body' => $resultData
+            $signer = new PayloadSignatureService();
+            $payload = [
+                'exam_id' => $resultData['exam_id'] ?? null,
+                'subject_code' => $resultData['subject_code'] ?? null,
+                'class_id' => $resultData['class_id'] ?? null,
+                'session_id' => $resultData['session_id'] ?? null,
+                'students' => $resultData['students'] ?? [],
+                'exam_session_id' => $this->data['exam_session_id'] ?? null,
+                'idempotency_key' => $idempotencyKey,
+                'signed_at' => date('Y-m-d H:i:s'),
+            ];
+
+            $response = $this->api->request('POST', '/api/v1/results/import', [
+                'body' => array_merge($payload, ['signature' => $signer->sign($payload)])
             ], $idempotencyKey);
 
             if ($response['status'] >= 400) {
