@@ -32,7 +32,8 @@ class Environment
 
     public function isConnectedMode(): bool
     {
-        return ($this->get('SYSTEM_MODE') === 'connected');
+        $mode = (string) $this->get('SYSTEM_MODE');
+        return in_array($mode, ['connected', 'integrated'], true);
     }
 
     public function isStandaloneMode(): bool

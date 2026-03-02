@@ -12,6 +12,28 @@ final class AuthContextService
 {
     public function currentUserId(): ?string
     {
+        $decoded = $this->decodeToken();
+        if ($decoded === null) {
+            return null;
+        }
+
+        $id = $decoded->sub ?? $decoded->id ?? null;
+        return is_string($id) ? $id : null;
+    }
+
+    public function currentRole(): ?string
+    {
+        $decoded = $this->decodeToken();
+        if ($decoded === null) {
+            return null;
+        }
+
+        $role = $decoded->role ?? null;
+        return is_string($role) ? $role : null;
+    }
+
+    private function decodeToken(): ?object
+    {
         $jwtSecret = $_ENV['JWT_SECRET'] ?? '';
         if ($jwtSecret === '') {
             return null;
@@ -32,12 +54,9 @@ final class AuthContextService
         }
 
         try {
-            $decoded = JWT::decode($jwt, new Key($jwtSecret, 'HS256'));
+            return JWT::decode($jwt, new Key($jwtSecret, 'HS256'));
         } catch (Exception $e) {
             return null;
         }
-
-        $id = $decoded->sub ?? $decoded->id ?? null;
-        return is_string($id) ? $id : null;
     }
 }
