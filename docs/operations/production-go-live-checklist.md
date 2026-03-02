@@ -20,7 +20,7 @@ Deployment decision: **P0 + P1 implementation completed in-repo**; execute stage
 
 ## Evidence from current repository review
 
-- Web routes for core auth/student/admin pages are now controller-wired in `routes/web.php`.
+- Web routes for core auth/student/admin pages are plugin-owned under `app/Plugins/*/routes/web.php`.
 - Student and admin dashboards now fetch runtime data from API endpoints.
 - `MonitoringController` now rejects auth when `JWT_SECRET` is missing (no default fallback).
 - Existing internal audit report still tracks unresolved high-risk controls.

@@ -10,7 +10,7 @@ This plan is based on a full repository walkthrough (application, views, assets,
   - `app/Domain/*` (Exam, Grading, Proctoring, Monitoring, Identity, Integration)
   - Legacy/question-specific stack in `app/Question/*`
   - Transport/controllers in `app/Http/Controllers/*`
-- Routing is centralized in `routes/web.php` and `routes/api.php`, and bootstrapped by `public/index.php`.
+- Routing is bootstrapped by `public/index.php`; API routes remain in `routes/api.php` while web routes are plugin-owned under `app/Plugins/*/routes/web.php`.
 - Infra and operations are present (`scripts/ops`, `deploy/*`, `docs/operations/*`).
 
 ### UI and presentation layer
