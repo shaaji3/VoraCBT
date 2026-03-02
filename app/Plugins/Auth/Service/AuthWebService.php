@@ -21,4 +21,9 @@ final class AuthWebService
     {
         $this->renderer->render('index.html');
     }
+
+    public function twoFactor(): void
+    {
+        $this->renderer->render('pages/2fa.html');
+    }
 }

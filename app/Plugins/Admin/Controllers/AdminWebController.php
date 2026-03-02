@@ -12,13 +12,9 @@ final class AdminWebController
     {
     }
 
-    public function dashboard(): void
-    {
-        $this->service->dashboard();
-    }
-
-    public function createExam(): void
-    {
-        $this->service->createExam();
-    }
+    public function dashboard(): void { $this->service->dashboard(); }
+    public function createExam(): void { $this->service->createExam(); }
+    public function analytics(): void { $this->service->analytics(); }
+    public function rolesPermissions(): void { $this->service->rolesPermissions(); }
+    public function settings(): void { $this->service->settings(); }
 }

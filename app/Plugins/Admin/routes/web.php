@@ -8,4 +8,7 @@ use FastRoute\RouteCollector;
 return static function (RouteCollector $r): void {
     $r->get('/admin/dashboard', [AdminWebController::class, 'dashboard']);
     $r->get('/admin/exams/create', [AdminWebController::class, 'createExam']);
+    $r->get('/admin/analytics', [AdminWebController::class, 'analytics']);
+    $r->get('/admin/roles-permissions', [AdminWebController::class, 'rolesPermissions']);
+    $r->get('/admin/settings', [AdminWebController::class, 'settings']);
 };

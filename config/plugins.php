@@ -18,4 +18,9 @@ return [
         'path' => __DIR__ . '/../app/Plugins/Student',
         'enabled' => true,
     ],
+    [
+        'name' => 'Teacher',
+        'path' => __DIR__ . '/../app/Plugins/Teacher',
+        'enabled' => true,
+    ],
 ];

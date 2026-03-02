@@ -25,6 +25,7 @@ final class TemplateRenderService
             'href="../css/' => 'href="/assets/css/',
             'src="js/' => 'src="/assets/js/',
             'src="../js/' => 'src="/assets/js/',
+            'href="../pages/' => 'href="/',
             'href="index.html"' => 'href="/login"',
             'href="../index.html"' => 'href="/login"',
             'href="admin-dashboard.html"' => 'href="/admin/dashboard"',
@@ -32,6 +33,17 @@ final class TemplateRenderService
             'href="active-exam.html"' => 'href="/student/exam"',
             'href="student-results.html"' => 'href="/student/results"',
             'href="exam-template.html"' => 'href="/admin/exams/create"',
+            'href="question-repository.html"' => 'href="/teacher/questions"',
+            'href="manual-grading.html"' => 'href="/teacher/grading"',
+            'href="system-settings.html"' => 'href="/admin/settings"',
+            'href="exam-analytics.html"' => 'href="/admin/analytics"',
+            'href="roles-permissions.html"' => 'href="/admin/roles-permissions"',
+            'href="bulk-upload.html"' => 'href="/teacher/questions/import"',
+            'href="create-mcq.html"' => 'href="/teacher/questions/create-mcq"',
+            'href="create-fill-blank.html"' => 'href="/teacher/questions/create-fill-blank"',
+            'href="create-matching.html"' => 'href="/teacher/questions/create-matching"',
+            'href="create-passage.html"' => 'href="/teacher/questions/create-passage"',
+            'href="2fa.html"' => 'href="/login/2fa"',
         ]);
     }
 }

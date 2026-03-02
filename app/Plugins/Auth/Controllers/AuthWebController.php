@@ -21,4 +21,9 @@ final class AuthWebController
     {
         $this->service->login();
     }
+
+    public function twoFactor(): void
+    {
+        $this->service->twoFactor();
+    }
 }

@@ -9,6 +9,7 @@ use FastRoute\RouteCollector;
 return static function (RouteCollector $r): void {
     $r->get('/', [AuthWebController::class, 'home']);
     $r->get('/login', [AuthWebController::class, 'login']);
+    $r->get('/login/2fa', [AuthWebController::class, 'twoFactor']);
 
     $r->post('/auth/login', [AuthController::class, 'login']);
     $r->post('/auth/logout', [AuthController::class, 'logout']);
