@@ -30,11 +30,17 @@ class AuthMiddleware implements MiddlewareInterface
         $headers = $request['headers'] ?? [];
         $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
 
-        if (!preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
-            return ApiResponse::error('Unauthorized', 401);
+        $jwt = null;
+
+        if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+            $jwt = $matches[1];
+        } elseif (isset($_COOKIE['auth_token']) && is_string($_COOKIE['auth_token']) && $_COOKIE['auth_token'] !== '') {
+            $jwt = $_COOKIE['auth_token'];
         }
 
-        $jwt = $matches[1];
+        if ($jwt === null) {
+            return ApiResponse::error('Unauthorized', 401);
+        }
 
         try {
             $decoded = JWT::decode($jwt, new Key($this->secretKey, 'HS256'));

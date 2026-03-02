@@ -10,12 +10,6 @@ export class ApiClient {
             ...customHeaders
         };
 
-        // Attempt to get token from localStorage or cookie if implemented
-        const token = localStorage.getItem('auth_token');
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-
         const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
         if (csrfTokenMeta && csrfTokenMeta.content) {
             headers['X-CSRF-Token'] = csrfTokenMeta.content;

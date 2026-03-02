@@ -17,4 +17,7 @@ final class AdminWebService
     public function analytics(): void { $this->renderer->render('pages/exam-analytics.html'); }
     public function rolesPermissions(): void { $this->renderer->render('pages/roles-permissions.html'); }
     public function settings(): void { $this->renderer->render('pages/system-settings.html'); }
+    public function questionRepository(): void { $this->renderer->render('pages/question-repository.html'); }
+    public function bulkUpload(): void { $this->renderer->render('pages/bulk-upload.html'); }
+    public function manualGrading(): void { $this->renderer->render('pages/manual-grading.html'); }
 }

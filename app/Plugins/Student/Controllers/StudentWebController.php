@@ -17,9 +17,9 @@ final class StudentWebController
         $this->service->dashboard();
     }
 
-    public function exam(): void
+    public function exam(?string $sessionId = null): void
     {
-        $this->service->exam();
+        $this->service->exam($sessionId);
     }
 
     public function results(): void

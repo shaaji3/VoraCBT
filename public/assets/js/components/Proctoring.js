@@ -1,9 +1,10 @@
 export class Proctoring {
-    constructor(examId, apiClient) {
+    constructor(examId, apiClient, sessionToken = null) {
         this.examId = examId;
         this.apiClient = apiClient;
         this.warnings = 0;
         this.isActive = false;
+        this.sessionToken = sessionToken;
     }
 
     start() {
@@ -75,6 +76,7 @@ export class Proctoring {
             await this.apiClient.post(`/exams/${this.examId}/proctoring-events`, {
                 type,
                 description,
+                token: this.sessionToken,
                 timestamp: new Date().toISOString()
             });
         } catch (error) {
