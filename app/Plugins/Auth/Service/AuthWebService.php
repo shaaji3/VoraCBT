@@ -8,17 +8,17 @@ use App\Plugins\Support\Service\TemplateRenderService;
 
 final class AuthWebService
 {
-    public function __construct(private readonly ?TemplateRenderService $renderer = null)
+    public function __construct(private readonly TemplateRenderService $renderer)
     {
     }
 
     public function home(): void
     {
-        ($this->renderer ?? new TemplateRenderService())->render('index.html');
+        $this->renderer->render('index.html');
     }
 
     public function login(): void
     {
-        ($this->renderer ?? new TemplateRenderService())->render('index.html');
+        $this->renderer->render('index.html');
     }
 }

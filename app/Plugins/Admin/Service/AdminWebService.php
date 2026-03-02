@@ -8,17 +8,17 @@ use App\Plugins\Support\Service\TemplateRenderService;
 
 final class AdminWebService
 {
-    public function __construct(private readonly ?TemplateRenderService $renderer = null)
+    public function __construct(private readonly TemplateRenderService $renderer)
     {
     }
 
     public function dashboard(): void
     {
-        ($this->renderer ?? new TemplateRenderService())->render('pages/admin-dashboard.html');
+        $this->renderer->render('pages/admin-dashboard.html');
     }
 
     public function createExam(): void
     {
-        ($this->renderer ?? new TemplateRenderService())->render('pages/exam-template.html');
+        $this->renderer->render('pages/exam-template.html');
     }
 }

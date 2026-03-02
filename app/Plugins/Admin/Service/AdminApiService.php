@@ -17,11 +17,11 @@ use Exception;
 final class AdminApiService
 {
     public function __construct(
-        private readonly ?StudentImportService $studentImportService = null,
-        private readonly ?StaffImportService $staffImportService = null,
-        private readonly ?CredentialExportService $credentialExportService = null,
-        private readonly ?AdminLogViewerService $adminLogViewerService = null,
-        private readonly ?AuthContextService $authContextService = null,
+        private readonly StudentImportService $studentImportService,
+        private readonly StaffImportService $staffImportService,
+        private readonly CredentialExportService $credentialExportService,
+        private readonly AdminLogViewerService $adminLogViewerService,
+        private readonly AuthContextService $authContextService,
     ) {
     }
 
@@ -40,18 +40,14 @@ final class AdminApiService
                     return;
                 }
 
-                $adminId = ($this->authContextService ?? new AuthContextService())->currentUserId();
+                $adminId = $this->authContextService->currentUserId();
                 if (!$adminId) {
                     ApiResponse::error('Unauthorized', 401)->send();
                     return;
                 }
 
                 $tenantId = $this->tenantIdFor($adminId);
-                $type = $_POST['type'] ?? 'student';
-
-                $service = $type === 'staff'
-                    ? ($this->staffImportService ?? new StaffImportService())
-                    : ($this->studentImportService ?? new StudentImportService());
+                $service = (($_POST['type'] ?? 'student') === 'staff') ? $this->staffImportService : $this->studentImportService;
 
                 $service->setTenantId($tenantId);
                 ApiResponse::json($service->preview((string) $file['tmp_name']))->send();
@@ -76,17 +72,14 @@ final class AdminApiService
                     return;
                 }
 
-                $adminId = ($this->authContextService ?? new AuthContextService())->currentUserId();
+                $adminId = $this->authContextService->currentUserId();
                 if (!$adminId) {
                     ApiResponse::error('Unauthorized', 401)->send();
                     return;
                 }
 
                 $tenantId = $this->tenantIdFor($adminId);
-                $type = $_POST['type'] ?? 'student';
-                $service = $type === 'staff'
-                    ? ($this->staffImportService ?? new StaffImportService())
-                    : ($this->studentImportService ?? new StudentImportService());
+                $service = (($_POST['type'] ?? 'student') === 'staff') ? $this->staffImportService : $this->studentImportService;
 
                 $service->setTenantId($tenantId);
                 ApiResponse::json($service->commit((string) $file['tmp_name'], $adminId))->send();
@@ -111,14 +104,13 @@ final class AdminApiService
 
                 $format = $_GET['format'] ?? 'csv';
                 $regenerate = filter_var($_GET['regenerate'] ?? false, FILTER_VALIDATE_BOOLEAN);
-                $adminId = ($this->authContextService ?? new AuthContextService())->currentUserId();
+                $adminId = $this->authContextService->currentUserId();
                 if (!$adminId) {
                     ApiResponse::error('Unauthorized', 401)->send();
                     return;
                 }
 
-                $content = ($this->credentialExportService ?? new CredentialExportService())
-                    ->export($filters, (string) $format, (bool) $regenerate, $adminId);
+                $content = $this->credentialExportService->export($filters, (string) $format, (bool) $regenerate, $adminId);
 
                 if ($format === 'csv') {
                     header('Content-Type: text/csv');
@@ -145,14 +137,8 @@ final class AdminApiService
                     'limit' => $_GET['limit'] ?? 100,
                 ];
 
-                $service = $this->adminLogViewerService ?? new AdminLogViewerService(DatabaseManager::getConnection());
-                $logs = $service->listLogs($filters);
-
-                ApiResponse::json([
-                    'data' => $logs,
-                    'count' => count($logs),
-                    'filters' => $filters,
-                ])->send();
+                $logs = $this->adminLogViewerService->listLogs($filters);
+                ApiResponse::json(['data' => $logs, 'count' => count($logs), 'filters' => $filters])->send();
             } catch (Exception $e) {
                 ApiResponse::error($e->getMessage(), 500)->send();
             }

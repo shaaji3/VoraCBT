@@ -8,32 +8,32 @@ use App\Plugins\Student\Service\StudentExamApiService;
 
 final class StudentExamApiController
 {
-    public function __construct(private readonly ?StudentExamApiService $service = null)
+    public function __construct(private readonly StudentExamApiService $service)
     {
     }
 
     public function overview(): void
     {
-        ($this->service ?? new StudentExamApiService())->overview();
+        $this->service->overview();
     }
 
     public function proctoringEvent(): void
     {
-        ($this->service ?? new StudentExamApiService())->proctoringEvent();
+        $this->service->proctoringEvent();
     }
 
     public function proctoringHeartbeat(): void
     {
-        ($this->service ?? new StudentExamApiService())->proctoringHeartbeat();
+        $this->service->proctoringHeartbeat();
     }
 
     public function autosave(): void
     {
-        ($this->service ?? new StudentExamApiService())->autosave();
+        $this->service->autosave();
     }
 
     public function resumeState(): void
     {
-        ($this->service ?? new StudentExamApiService())->resumeState();
+        $this->service->resumeState();
     }
 }

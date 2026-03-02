@@ -8,17 +8,17 @@ use App\Plugins\Auth\Service\AuthWebService;
 
 final class AuthWebController
 {
-    public function __construct(private readonly ?AuthWebService $service = null)
+    public function __construct(private readonly AuthWebService $service)
     {
     }
 
     public function home(): void
     {
-        ($this->service ?? new AuthWebService())->home();
+        $this->service->home();
     }
 
     public function login(): void
     {
-        ($this->service ?? new AuthWebService())->login();
+        $this->service->login();
     }
 }

@@ -8,22 +8,22 @@ use App\Plugins\Student\Service\StudentWebService;
 
 final class StudentWebController
 {
-    public function __construct(private readonly ?StudentWebService $service = null)
+    public function __construct(private readonly StudentWebService $service)
     {
     }
 
     public function dashboard(): void
     {
-        ($this->service ?? new StudentWebService())->dashboard();
+        $this->service->dashboard();
     }
 
     public function exam(): void
     {
-        ($this->service ?? new StudentWebService())->exam();
+        $this->service->exam();
     }
 
     public function results(): void
     {
-        ($this->service ?? new StudentWebService())->results();
+        $this->service->results();
     }
 }

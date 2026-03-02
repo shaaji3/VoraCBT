@@ -8,22 +8,22 @@ use App\Plugins\Support\Service\TemplateRenderService;
 
 final class StudentWebService
 {
-    public function __construct(private readonly ?TemplateRenderService $renderer = null)
+    public function __construct(private readonly TemplateRenderService $renderer)
     {
     }
 
     public function dashboard(): void
     {
-        ($this->renderer ?? new TemplateRenderService())->render('pages/exam-selection.html');
+        $this->renderer->render('pages/exam-selection.html');
     }
 
     public function exam(): void
     {
-        ($this->renderer ?? new TemplateRenderService())->render('pages/active-exam.html');
+        $this->renderer->render('pages/active-exam.html');
     }
 
     public function results(): void
     {
-        ($this->renderer ?? new TemplateRenderService())->render('pages/student-results.html');
+        $this->renderer->render('pages/student-results.html');
     }
 }

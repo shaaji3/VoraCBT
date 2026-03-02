@@ -97,7 +97,7 @@ $dispatcher = simpleDispatcher(function(RouteCollector $r) {
     }
 
     $usePluginRouting = (($_ENV['APP_PLUGIN_ROUTING'] ?? 'false') === 'true');
-    $pluginRoutingFallback = (($_ENV['APP_PLUGIN_ROUTING_FALLBACK'] ?? 'true') === 'true');
+    $pluginRoutingFallback = (($_ENV['APP_PLUGIN_ROUTING_FALLBACK'] ?? 'false') === 'true');
 
     if ($usePluginRouting) {
         PluginRouteRegistrar::register($r, 'web');
