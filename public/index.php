@@ -96,17 +96,19 @@ $dispatcher = simpleDispatcher(function(RouteCollector $r) {
     }
 
     $usePluginRouting = (($_ENV['APP_PLUGIN_ROUTING'] ?? 'false') === 'true');
+    $pluginRoutingFallback = (($_ENV['APP_PLUGIN_ROUTING_FALLBACK'] ?? 'true') === 'true');
 
     if ($usePluginRouting) {
         PluginRouteRegistrar::register($r, 'web');
-        return;
     }
 
-    // Load routes from routes/web.php
-    if (file_exists(__DIR__ . '/../routes/web.php')) {
-        $webRoutes = require __DIR__ . '/../routes/web.php';
-        if (is_callable($webRoutes)) {
-            $webRoutes($r);
+    if (!$usePluginRouting || $pluginRoutingFallback) {
+        // Load legacy web routes as default path or fallback while migration is in progress.
+        if (file_exists(__DIR__ . '/../routes/web.php')) {
+            $webRoutes = require __DIR__ . '/../routes/web.php';
+            if (is_callable($webRoutes)) {
+                $webRoutes($r);
+            }
         }
     }
 });
