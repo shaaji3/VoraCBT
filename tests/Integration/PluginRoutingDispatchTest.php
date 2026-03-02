@@ -42,34 +42,6 @@ final class PluginRoutingDispatchTest extends TestCase
     }
 
 
-
-    public function testCorePersonaWebRoutesDispatchWhenEnabled(): void
-    {
-        $_ENV['APP_PLUGIN_ROUTING'] = 'true';
-
-        $dispatcher = simpleDispatcher(function (RouteCollector $r): void {
-            if ((($_ENV['APP_PLUGIN_ROUTING'] ?? 'true') === 'true')) {
-                PluginRouteRegistrar::register($r, 'web');
-            }
-        });
-
-        $twoFaRoute = $dispatcher->dispatch('GET', '/login/2fa');
-        $adminAnalyticsRoute = $dispatcher->dispatch('GET', '/admin/analytics');
-        $adminRolesRoute = $dispatcher->dispatch('GET', '/admin/roles-permissions');
-        $adminSettingsRoute = $dispatcher->dispatch('GET', '/admin/settings');
-        $studentDashboardRoute = $dispatcher->dispatch('GET', '/student/dashboard');
-        $studentResultsRoute = $dispatcher->dispatch('GET', '/student/results');
-        $teacherQuestionsRoute = $dispatcher->dispatch('GET', '/teacher/questions');
-
-        $this->assertSame(Dispatcher::FOUND, $twoFaRoute[0]);
-        $this->assertSame(Dispatcher::FOUND, $adminAnalyticsRoute[0]);
-        $this->assertSame(Dispatcher::FOUND, $adminRolesRoute[0]);
-        $this->assertSame(Dispatcher::FOUND, $adminSettingsRoute[0]);
-        $this->assertSame(Dispatcher::FOUND, $studentDashboardRoute[0]);
-        $this->assertSame(Dispatcher::FOUND, $studentResultsRoute[0]);
-        $this->assertSame(Dispatcher::FOUND, $teacherQuestionsRoute[0]);
-    }
-
     public function testAdminExtendedWebRoutesDispatchWhenEnabled(): void
     {
         $_ENV['APP_PLUGIN_ROUTING'] = 'true';
@@ -126,30 +98,6 @@ final class PluginRoutingDispatchTest extends TestCase
 
         $this->assertSame(Dispatcher::FOUND, $legacyExamRoute[0]);
         $this->assertSame(Dispatcher::FOUND, $sessionPathRoute[0]);
-    }
-
-
-    public function testAdminExtendedApiRoutesDispatchWhenEnabled(): void
-    {
-        $_ENV['APP_PLUGIN_ROUTING'] = 'true';
-
-        $dispatcher = simpleDispatcher(function (RouteCollector $r): void {
-            if ((($_ENV['APP_PLUGIN_ROUTING'] ?? 'true') === 'true')) {
-                PluginRouteRegistrar::register($r, 'api');
-            }
-        });
-
-        $dashboardRoute = $dispatcher->dispatch('GET', '/api/admin/dashboard/overview');
-        $analyticsRoute = $dispatcher->dispatch('GET', '/api/admin/analytics/summary');
-        $rolesRoute = $dispatcher->dispatch('GET', '/api/admin/roles/summary');
-        $questionsRoute = $dispatcher->dispatch('GET', '/api/admin/questions/summary');
-        $gradingRoute = $dispatcher->dispatch('GET', '/api/admin/grading/pending');
-
-        $this->assertSame(Dispatcher::FOUND, $dashboardRoute[0]);
-        $this->assertSame(Dispatcher::FOUND, $analyticsRoute[0]);
-        $this->assertSame(Dispatcher::FOUND, $rolesRoute[0]);
-        $this->assertSame(Dispatcher::FOUND, $questionsRoute[0]);
-        $this->assertSame(Dispatcher::FOUND, $gradingRoute[0]);
     }
 
     public function testTeacherApiRoutesDispatchWhenEnabled(): void

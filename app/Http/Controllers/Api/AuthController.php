@@ -82,10 +82,10 @@ class AuthController
             'exp' => $expiresAt->getTimestamp(),
         ], $jwtSecret, 'HS256');
 
-        $this->issueAuthCookie($token, $expiresAt);
-
         ApiResponse::json([
             'message' => 'Login successful',
+            'token' => $token,
+            'token_type' => 'Bearer',
             'expires_at' => $expiresAt->format(DATE_ATOM),
             'user' => [
                 'id' => $user['id'],
