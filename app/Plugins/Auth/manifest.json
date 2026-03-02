@@ -1,0 +1,8 @@
+{
+  "name": "Auth",
+  "version": "0.1.0",
+  "description": "Authentication and session entry routes",
+  "providers": [
+    "App\\Plugins\\Auth\\AuthServiceProvider"
+  ]
+}
