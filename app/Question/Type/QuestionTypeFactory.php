@@ -15,6 +15,9 @@ class QuestionTypeFactory
         'numerical' => NumericalType::class,
         'matching' => MatchingType::class,
         'passage' => PassageType::class,
+        'case_study' => CaseStudyType::class,
+        'true_false' => TrueFalseType::class,
+        'drag_drop' => DragDropType::class,
         'image_based' => ImageBasedType::class,
     ];
 

@@ -7,9 +7,14 @@ ob_start();
         <h1 class="h4 mb-1">Question Repository</h1>
         <p class="text-secondary mb-0">Search, review and archive questions.</p>
     </div>
-    <div class="d-flex gap-2">
-        <a href="/teacher/questions/create-mcq" class="btn btn-primary btn-sm">Create MCQ</a>
-        <a href="/teacher/questions/import" class="btn btn-outline-primary btn-sm">Import</a>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="/teacher/questions/create-mcq" class="btn btn-primary btn-sm">MCQ</a>
+        <a href="/teacher/questions/create-true-false" class="btn btn-outline-primary btn-sm">True/False</a>
+        <a href="/teacher/questions/create-fill-blank" class="btn btn-outline-primary btn-sm">Fill Blank</a>
+        <a href="/teacher/questions/create-matching" class="btn btn-outline-primary btn-sm">Matching</a>
+        <a href="/teacher/questions/create-drag-drop" class="btn btn-outline-primary btn-sm">Drag & Drop</a>
+        <a href="/teacher/questions/create-case-study" class="btn btn-outline-primary btn-sm">Case Study</a>
+        <a href="/teacher/questions/import" class="btn btn-outline-secondary btn-sm">Import CSV</a>
     </div>
 </div>
 

@@ -9,7 +9,7 @@ ob_start();
             <nav class="d-flex align-items-center gap-2 small text-secondary fw-medium">
                 <a href="/admin/dashboard" class="text-decoration-none text-secondary hover-text-primary">Home</a>
                 <span class="text-secondary">/</span>
-                <a href="/admin/exams" class="text-decoration-none text-secondary hover-text-primary">Exams</a>
+                <a href="/admin/dashboard" class="text-decoration-none text-secondary hover-text-primary">Exams</a>
                 <span class="text-secondary">/</span>
                 <span class="text-body">Create Template</span>
             </nav>
@@ -27,6 +27,8 @@ ob_start();
     <main class="flex-grow-1 py-4 py-lg-5">
         <div class="container-xxl px-4">
 
+            <div id="exam-template-status" class="alert alert-secondary" role="status">Edit template fields and save draft without leaving page.</div>
+
             <!-- Header Section -->
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-4 mb-5">
                 <div>
@@ -34,8 +36,8 @@ ob_start();
                     <p class="text-secondary mb-0">Configure settings, set behaviors, and curate questions for the new exam.</p>
                 </div>
                 <div class="d-flex gap-3">
-                    <button class="btn btn-white border shadow-sm btn-sm fw-bold text-secondary hover-bg-body">Cancel</button>
-                    <button class="btn btn-primary btn-sm fw-bold shadow-sm d-flex align-items-center gap-2 px-3 hover-scale">
+                    <button id="exam-template-cancel" class="btn btn-white border shadow-sm btn-sm fw-bold text-secondary hover-bg-body" type="button">Cancel</button>
+                    <button id="exam-template-save" class="btn btn-primary btn-sm fw-bold shadow-sm d-flex align-items-center gap-2 px-3 hover-scale" type="button">
                         <span class="material-symbols-outlined fs-5">save</span> Save Template
                     </button>
                 </div>
@@ -148,12 +150,12 @@ ob_start();
                                 <h6 class="fw-bold text-body mb-0">Questions</h6>
                                 <span class="badge bg-primary-soft text-primary rounded-pill">4 Added</span>
                             </div>
-                            <div class="card-body p-3 overflow-auto custom-scrollbar d-flex flex-column gap-2">
+                            <div id="exam-template-question-list" class="card-body p-3 overflow-auto custom-scrollbar d-flex flex-column gap-2">
                                 <!-- Question Item 1 -->
-                                <div class="card border bg-body p-3 hover-border-primary transition-colors group">
+                                <div class="card border bg-body p-3 hover-border-primary transition-colors group" data-question-id="seed-1" data-marks="5">
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <p class="mb-0 small fw-medium text-body text-truncate-2">Calculate the velocity of a falling object after 3 seconds...</p>
-                                        <button class="btn btn-link p-0 text-secondary hover-text-danger lh-1"><span class="material-symbols-outlined fs-6">delete</span></button>
+                                        <button class="btn btn-link p-0 text-secondary hover-text-danger lh-1" type="button" data-action="remove-question-card"><span class="material-symbols-outlined fs-6">delete</span></button>
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="badge bg-secondary bg-opacity-25 text-body fw-medium" style="font-size: 0.65rem;">Physics</span>
@@ -162,10 +164,10 @@ ob_start();
                                     </div>
                                 </div>
                                 <!-- Question Item 2 -->
-                                <div class="card border bg-body p-3 hover-border-primary transition-colors group">
+                                <div class="card border bg-body p-3 hover-border-primary transition-colors group" data-question-id="seed-2" data-marks="10">
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <p class="mb-0 small fw-medium text-body text-truncate-2">Define Newton's First Law of Motion in your own words.</p>
-                                        <button class="btn btn-link p-0 text-secondary hover-text-danger lh-1"><span class="material-symbols-outlined fs-6">delete</span></button>
+                                        <button class="btn btn-link p-0 text-secondary hover-text-danger lh-1" type="button" data-action="remove-question-card"><span class="material-symbols-outlined fs-6">delete</span></button>
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="badge bg-secondary bg-opacity-25 text-body fw-medium" style="font-size: 0.65rem;">Physics</span>
@@ -174,10 +176,10 @@ ob_start();
                                     </div>
                                 </div>
                                 <!-- Question Item 3 -->
-                                <div class="card border bg-body p-3 hover-border-primary transition-colors group">
+                                <div class="card border bg-body p-3 hover-border-primary transition-colors group" data-question-id="seed-3" data-marks="2">
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <p class="mb-0 small fw-medium text-body text-truncate-2">Which of the following is a scalar quantity?</p>
-                                        <button class="btn btn-link p-0 text-secondary hover-text-danger lh-1"><span class="material-symbols-outlined fs-6">delete</span></button>
+                                        <button class="btn btn-link p-0 text-secondary hover-text-danger lh-1" type="button" data-action="remove-question-card"><span class="material-symbols-outlined fs-6">delete</span></button>
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="badge bg-secondary bg-opacity-25 text-body fw-medium" style="font-size: 0.65rem;">Physics</span>
@@ -186,10 +188,10 @@ ob_start();
                                     </div>
                                 </div>
                                 <!-- Question Item 4 -->
-                                <div class="card border bg-body p-3 hover-border-primary transition-colors group">
+                                <div class="card border bg-body p-3 hover-border-primary transition-colors group" data-question-id="seed-4" data-marks="15">
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <p class="mb-0 small fw-medium text-body text-truncate-2">Describe the relationship between force, mass, and acceleration.</p>
-                                        <button class="btn btn-link p-0 text-secondary hover-text-danger lh-1"><span class="material-symbols-outlined fs-6">delete</span></button>
+                                        <button class="btn btn-link p-0 text-secondary hover-text-danger lh-1" type="button" data-action="remove-question-card"><span class="material-symbols-outlined fs-6">delete</span></button>
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="badge bg-secondary bg-opacity-25 text-body fw-medium" style="font-size: 0.65rem;">Physics</span>
@@ -199,12 +201,12 @@ ob_start();
                                 </div>
                             </div>
                             <div class="card-footer bg-body border-top p-4">
-                                <button class="btn btn-outline-primary border-dashed w-100 fw-bold d-flex align-items-center justify-content-center gap-2 py-2 mb-3 bg-primary-soft hover-bg-primary-soft-darker">
+                                <button id="exam-template-add-question" class="btn btn-outline-primary border-dashed w-100 fw-bold d-flex align-items-center justify-content-center gap-2 py-2 mb-3 bg-primary-soft hover-bg-primary-soft-darker" type="button">
                                     <span class="material-symbols-outlined fs-5">add_circle</span> Add Questions from Repository
                                 </button>
                                 <div class="d-flex justify-content-between align-items-center text-sm">
                                     <span class="text-secondary small">Total Points:</span>
-                                    <span class="fw-bold text-body">32 pts</span>
+                                    <span id="exam-template-total-points" class="fw-bold text-body">32 pts</span>
                                 </div>
                             </div>
                         </div>
@@ -229,7 +231,28 @@ ob_start();
         </div>
     </main>
 
+
+
+<div class="modal fade" id="question-repo-modal" tabindex="-1" aria-labelledby="question-repo-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="question-repo-modal-title" class="modal-title">Question Repository</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div id="question-repo-modal-body" class="modal-body">
+                <p class="text-secondary mb-0">Loading repository questions…</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="question-repo-apply" type="button" class="btn btn-primary">Add Selected Questions</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?php
+$scripts = '<script type="module" src="/assets/js/pages/exam-template.js"></script>';
 $content = ob_get_clean();
 include __DIR__ . '/../../layouts/focus.php';
 ?>

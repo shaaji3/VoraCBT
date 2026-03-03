@@ -12,7 +12,7 @@ ob_start();
 
 <div class="card border-0 shadow-sm">
     <div class="card-body">
-        <input type="search" class="form-control mb-3" placeholder="Search questions...">
+        <input id="question-search" type="search" class="form-control mb-3" placeholder="Search questions...">
         <div class="table-responsive">
             <table class="table table-striped align-middle mb-0">
                 <thead><tr><th>ID</th><th>Type</th><th>Prompt</th><th>Updated</th></tr></thead>

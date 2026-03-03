@@ -54,6 +54,9 @@ class MCQGradingStrategy implements GradingStrategyInterface
         // Only applies if configured AND there are multiple correct options
         $partialScoring = $config['partial_scoring'] ?? false;
 
+        $negativeMarkingEnabled = (bool) ($config['negative_marking_enabled'] ?? false);
+        $negativeMarkPerWrong = max(0.0, (float) ($config['negative_mark_per_wrong'] ?? 0.0));
+
         if ($partialScoring && $correctCount > 1) {
             // Formula: (Matches - Wrongs) / TotalCorrect * MaxMarks
             // This penalizes guessing all options.
@@ -63,9 +66,17 @@ class MCQGradingStrategy implements GradingStrategyInterface
             }
 
             $score = ($netCorrect / $correctCount) * $maxMarks;
-            $score = round($score, 2);
+            if ($negativeMarkingEnabled && $negativeMarkPerWrong > 0 && $wrongCount > 0) {
+                $score -= ($wrongCount * $negativeMarkPerWrong);
+            }
+            $score = max(0.0, round($score, 2));
 
             return new GradingResult($score, false, "Partial score: $matchCount correct, $wrongCount wrong.");
+        }
+
+        if ($negativeMarkingEnabled && $negativeMarkPerWrong > 0 && $wrongCount > 0) {
+            $penaltyScore = max(0.0, round($maxMarks - ($wrongCount * $negativeMarkPerWrong), 2));
+            return new GradingResult($penaltyScore, false, 'Applied negative marking.');
         }
 
         return new GradingResult(0.0, false);

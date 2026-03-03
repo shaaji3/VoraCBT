@@ -12,6 +12,8 @@ return static function (RouteCollector $r): void {
         $r->post('/teacher/questions', [TeacherApiController::class, 'createQuestion']);
         $r->put('/teacher/questions/{id}', [TeacherApiController::class, 'updateQuestion']);
         $r->delete('/teacher/questions/{id}', [TeacherApiController::class, 'deleteQuestion']);
+        $r->post('/teacher/questions/import/preview', [TeacherApiController::class, 'previewQuestionImport']);
+        $r->post('/teacher/questions/import/commit', [TeacherApiController::class, 'commitQuestionImport']);
 
         $r->get('/teacher/grading/pending', [TeacherApiController::class, 'pendingManualGrading']);
         $r->get('/teacher/grading/{sessionId}/answers', [TeacherApiController::class, 'ungradedAnswers']);

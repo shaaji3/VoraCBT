@@ -6,6 +6,8 @@ namespace App\Domain\Grading\Service;
 
 use App\Domain\Grading\Job\ScoreAggregationJob;
 use App\Domain\Grading\Service\GradingStrategy\FillInTheBlankGradingStrategy;
+use App\Domain\Grading\Service\GradingStrategy\TrueFalseGradingStrategy;
+use App\Domain\Grading\Service\GradingStrategy\DragDropGradingStrategy;
 use App\Domain\Grading\Service\GradingStrategy\GradingStrategyInterface;
 use App\Domain\Grading\Service\GradingStrategy\MatchingGradingStrategy;
 use App\Domain\Grading\Service\GradingStrategy\MCQGradingStrategy;
@@ -26,6 +28,8 @@ class AutoGradingService
         $this->registerStrategy(new FillInTheBlankGradingStrategy());
         $this->registerStrategy(new NumericalGradingStrategy());
         $this->registerStrategy(new MatchingGradingStrategy());
+        $this->registerStrategy(new TrueFalseGradingStrategy());
+        $this->registerStrategy(new DragDropGradingStrategy());
     }
 
     private function registerStrategy(GradingStrategyInterface $strategy): void
@@ -63,6 +67,11 @@ class AutoGradingService
 
         $answers = $this->db->fetchAllAssociative($sql, ['session_id' => $sessionId]);
 
+        $templateConfig = $this->db->fetchAssociative(
+            'SELECT t.negative_marking_enabled, t.negative_mark_per_wrong FROM exam_templates t JOIN exam_sessions s ON s.exam_template_id = t.id WHERE s.id = ?',
+            [$sessionId]
+        ) ?: [];
+
         foreach ($answers as $row) {
             $type = $row['question_type'];
             $strategy = $this->getStrategy($type);
@@ -76,8 +85,11 @@ class AutoGradingService
                 $answerPayload = json_decode($row['answer_payload'], true, 512, JSON_THROW_ON_ERROR);
                 $maxMarks = (float)$row['max_marks'];
 
-                // Default config, ideally fetched from exam template settings
-                $config = ['partial_scoring' => true];
+                $config = [
+                    'partial_scoring' => true,
+                    'negative_marking_enabled' => (bool) ($templateConfig['negative_marking_enabled'] ?? false),
+                    'negative_mark_per_wrong' => (float) ($templateConfig['negative_mark_per_wrong'] ?? 0),
+                ];
 
                 $result = $strategy->grade($questionContent, $answerPayload, $maxMarks, $config);
 

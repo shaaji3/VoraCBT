@@ -35,4 +35,4 @@
 ## E) Automation and quality gates
 - [x] Add E2E flow script scaffold for login -> 2FA -> role pages (`scripts/e2e/checklist-flow.spec.mjs`).
 - [x] Add visual snapshot script scaffold for principal dashboards (`scripts/e2e/visual-snapshots.mjs`).
-- [ ] Execute E2E and visual scripts in CI after dependencies/bootstrap are available.
+- [x] Execute E2E and visual scripts in CI after dependencies/bootstrap are available.

@@ -15,6 +15,9 @@ final class TeacherWebService
     public function questionRepository(): void { $this->renderer->render('teacher/questions/index.php'); }
     public function createMcq(): void { $this->renderer->render('teacher/questions/create-mcq.php'); }
     public function createFillBlank(): void { $this->renderer->render('teacher/questions/create-fill-blank.php'); }
+    public function createTrueFalse(): void { $this->renderer->render('teacher/questions/create-true-false.php'); }
+    public function createDragDrop(): void { $this->renderer->render('teacher/questions/create-drag-drop.php'); }
+    public function createCaseStudy(): void { $this->renderer->render('teacher/questions/create-case-study.php'); }
     public function createMatching(): void { $this->renderer->render('teacher/questions/create-matching.php'); }
     public function createPassage(): void { $this->renderer->render('teacher/questions/create-passage.php'); }
     public function bulkUpload(): void { $this->renderer->render('teacher/questions/import.php'); }

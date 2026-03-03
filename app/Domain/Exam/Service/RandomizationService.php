@@ -86,6 +86,11 @@ class RandomizationService extends BaseService
                     }
                 }
 
+                if (!empty($rule['learning_objective'])) {
+                    $qb->andWhere('q.metadata LIKE :learningObjective')
+                       ->setParameter('learningObjective', '%"learning_objective":"' . $rule['learning_objective'] . '"%');
+                }
+
                 // Fetch candidates
                 $candidates = $qb->fetchAllAssociative();
 

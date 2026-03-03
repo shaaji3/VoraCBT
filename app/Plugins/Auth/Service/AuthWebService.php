@@ -26,4 +26,24 @@ final class AuthWebService
     {
         $this->renderer->render('auth/2fa.php');
     }
+
+    public function forgotPassword(): void
+    {
+        $this->renderer->render('auth/forgot-password.php');
+    }
+
+    public function contactSupport(): void
+    {
+        $this->renderer->render('auth/contact-support.php');
+    }
+
+    public function privacy(): void
+    {
+        $this->renderer->render('auth/privacy.php');
+    }
+
+    public function terms(): void
+    {
+        $this->renderer->render('auth/terms.php');
+    }
 }
