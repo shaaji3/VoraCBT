@@ -11,6 +11,11 @@ export class ApiClient {
         };
 
         const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+
+        const storedToken = window.localStorage.getItem('auth_token');
+        if (storedToken) {
+            headers['Authorization'] = `Bearer ${storedToken}`;
+        }
         if (csrfTokenMeta && csrfTokenMeta.content) {
             headers['X-CSRF-Token'] = csrfTokenMeta.content;
         }

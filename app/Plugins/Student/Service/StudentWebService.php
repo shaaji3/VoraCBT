@@ -14,17 +14,17 @@ final class StudentWebService
 
     public function dashboard(): void
     {
-        $this->renderer->render('pages/exam-selection.html');
+        $this->renderer->render('student/dashboard.php');
     }
 
     public function exam(?string $sessionId = null): void
     {
-        // Template currently bootstraps runtime client-side; sessionId is read from URL path/query by JS.
-        $this->renderer->render('pages/active-exam.html');
+        // Runtime page bootstraps exam state client-side; sessionId is read from URL path/query by JS.
+        $this->renderer->render('student/exam.php');
     }
 
     public function results(): void
     {
-        $this->renderer->render('pages/student-results.html');
+        $this->renderer->render('student/results.php');
     }
 }

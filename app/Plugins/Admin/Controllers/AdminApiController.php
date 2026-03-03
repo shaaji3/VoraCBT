@@ -28,6 +28,27 @@ final class AdminApiController
         $this->service->rolesSummary();
     }
 
+
+    public function rolesPermissions(): void
+    {
+        $this->service->rolesPermissions();
+    }
+
+    public function saveRolesPermissions(): void
+    {
+        $this->service->saveRolesPermissions();
+    }
+
+    public function settings(): void
+    {
+        $this->service->settings();
+    }
+
+    public function saveSettings(): void
+    {
+        $this->service->saveSettings();
+    }
+
     public function questionsSummary(): void
     {
         $this->service->questionsSummary();

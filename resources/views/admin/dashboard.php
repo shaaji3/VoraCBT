@@ -50,7 +50,7 @@ ob_start();
     </div>
 </div>
 <?php
-$scripts = '<script type="module" src="/js/pages/admin-dashboard.js"></script>';
+$scripts = '<script type="module" src="/assets/js/pages/admin-dashboard.js"></script>';
 $content = ob_get_clean();
 include __DIR__ . '/../layouts/app.php';
 ?>

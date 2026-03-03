@@ -17,6 +17,11 @@ final class StudentExamApiController
         $this->service->overview();
     }
 
+    public function results(): void
+    {
+        $this->service->results();
+    }
+
     public function exam(string $sessionId): void
     {
         $this->service->exam($sessionId);
