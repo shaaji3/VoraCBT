@@ -76,6 +76,54 @@ final class StudentExamApiService
         });
     }
 
+
+    public function results(): void
+    {
+        RouteAuthorizer::authorize(['student', 'admin', 'super_admin'], function (): void {
+            try {
+                $currentUser = $this->currentUser();
+                if ($currentUser === null) {
+                    ApiResponse::error('Unauthorized', 401)->send();
+                    return;
+                }
+
+                $requestedUserId = $_GET['user_id'] ?? null;
+                $isAdmin = in_array($currentUser['role'] ?? '', ['admin', 'super_admin'], true);
+                $userId = ($isAdmin && is_string($requestedUserId) && $requestedUserId !== '') ? $requestedUserId : $currentUser['id'];
+
+                $rows = $this->db->fetchAllAssociative(
+                    "SELECT s.id, s.score, s.total_marks, s.end_time, e.title, e.subject
+                     FROM exam_sessions s
+                     INNER JOIN exam_templates e ON e.id = s.exam_template_id
+                     WHERE s.user_id = ? AND s.status IN ('submitted', 'completed', 'graded')
+                     ORDER BY s.end_time DESC
+                     LIMIT 50",
+                    [$userId]
+                );
+
+                $items = array_map(static function (array $row): array {
+                    $score = (float) ($row['score'] ?? 0);
+                    $total = (float) ($row['total_marks'] ?? 0);
+                    $percent = $total > 0 ? round(($score / $total) * 100, 2) : null;
+
+                    return [
+                        'session_id' => $row['id'],
+                        'title' => $row['title'] ?? 'Untitled Exam',
+                        'subject' => $row['subject'] ?? 'General',
+                        'score' => $score,
+                        'total_marks' => $total,
+                        'percent' => $percent,
+                        'completed_at' => $row['end_time'] ?? null,
+                    ];
+                }, $rows);
+
+                ApiResponse::json(['items' => $items, 'count' => count($items)])->send();
+            } catch (Exception $e) {
+                ApiResponse::error($e->getMessage(), 500)->send();
+            }
+        });
+    }
+
     public function exam(string $sessionId): void
     {
         RouteAuthorizer::authorize(['student', 'admin', 'super_admin'], function () use ($sessionId): void {

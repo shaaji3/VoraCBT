@@ -20,7 +20,7 @@ ob_start();
                     class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-4 mb-3 shadow-sm size-48">
                     <span class="material-symbols-outlined fs-3">grid_view</span>
                 </div>
-                <h1 class="h4 fw-bold mb-1 tracking-tight">Welcome Back</h1>
+                <h1 class="h4 fw-bold mb-1 tracking-tight">Enterprise Portal Login</h1>
                 <p class="text-muted-adaptive small mb-0">Sign in to CBT Enterprise Platform</p>
             </div>
 

@@ -17,6 +17,26 @@ final class TeacherApiController
         $this->service->questionRepository();
     }
 
+    public function showQuestion(string $id): void
+    {
+        $this->service->showQuestion($id);
+    }
+
+    public function createQuestion(): void
+    {
+        $this->service->createQuestion();
+    }
+
+    public function updateQuestion(string $id): void
+    {
+        $this->service->updateQuestion($id);
+    }
+
+    public function deleteQuestion(string $id): void
+    {
+        $this->service->deleteQuestion($id);
+    }
+
     public function pendingManualGrading(): void
     {
         $this->service->pendingManualGrading();
@@ -25,5 +45,10 @@ final class TeacherApiController
     public function ungradedAnswers(string $sessionId): void
     {
         $this->service->ungradedAnswers($sessionId);
+    }
+
+    public function scoreAnswer(string $answerId): void
+    {
+        $this->service->scoreAnswer($answerId);
     }
 }

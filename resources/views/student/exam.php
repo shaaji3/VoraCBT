@@ -54,7 +54,7 @@ ob_start();
     </div>
 </div>
 <?php
-$scripts = '<script type="module" src="/js/pages/exam.js"></script>';
+$scripts = '<script type="module" src="/assets/js/pages/exam.js"></script>';
 $content = ob_get_clean();
 include __DIR__ . '/../layouts/exam.php';
 ?>

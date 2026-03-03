@@ -12,11 +12,11 @@ final class TeacherWebService
     {
     }
 
-    public function questionRepository(): void { $this->renderer->render('pages/question-repository.html'); }
-    public function createMcq(): void { $this->renderer->render('pages/create-mcq.html'); }
-    public function createFillBlank(): void { $this->renderer->render('pages/create-fill-blank.html'); }
-    public function createMatching(): void { $this->renderer->render('pages/create-matching.html'); }
-    public function createPassage(): void { $this->renderer->render('pages/create-passage.html'); }
-    public function bulkUpload(): void { $this->renderer->render('pages/bulk-upload.html'); }
-    public function manualGrading(): void { $this->renderer->render('pages/manual-grading.html'); }
+    public function questionRepository(): void { $this->renderer->render('teacher/questions/index.php'); }
+    public function createMcq(): void { $this->renderer->render('teacher/questions/create-mcq.php'); }
+    public function createFillBlank(): void { $this->renderer->render('teacher/questions/create-fill-blank.php'); }
+    public function createMatching(): void { $this->renderer->render('teacher/questions/create-matching.php'); }
+    public function createPassage(): void { $this->renderer->render('teacher/questions/create-passage.php'); }
+    public function bulkUpload(): void { $this->renderer->render('teacher/questions/import.php'); }
+    public function manualGrading(): void { $this->renderer->render('teacher/grading/manual.php'); }
 }

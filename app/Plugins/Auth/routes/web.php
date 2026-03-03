@@ -13,4 +13,6 @@ return static function (RouteCollector $r): void {
 
     $r->post('/auth/login', [AuthController::class, 'login']);
     $r->post('/auth/logout', [AuthController::class, 'logout']);
+    $r->post('/auth/2fa/verify', [AuthController::class, 'verifyTwoFactor']);
+    $r->post('/auth/2fa/resend', [AuthController::class, 'resendTwoFactor']);
 };

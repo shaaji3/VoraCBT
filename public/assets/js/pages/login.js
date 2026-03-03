@@ -37,6 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
             btnIcon.textContent = 'check_circle';
             btnIcon.classList.remove('d-none');
 
+            if (response?.data?.requires_2fa) {
+                setTimeout(() => {
+                    window.location.href = response.data?.redirect || '/login/2fa';
+                }, 300);
+                return;
+            }
+
             const token = response?.data?.token;
             if (token) {
                 localStorage.setItem('auth_token', token);

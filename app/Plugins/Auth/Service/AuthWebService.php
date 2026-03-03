@@ -14,16 +14,16 @@ final class AuthWebService
 
     public function home(): void
     {
-        $this->renderer->render('index.html');
+        $this->renderer->render('auth/login.php');
     }
 
     public function login(): void
     {
-        $this->renderer->render('index.html');
+        $this->renderer->render('auth/login.php');
     }
 
     public function twoFactor(): void
     {
-        $this->renderer->render('pages/2fa.html');
+        $this->renderer->render('auth/2fa.php');
     }
 }

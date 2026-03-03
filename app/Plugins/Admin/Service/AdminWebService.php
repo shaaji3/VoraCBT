@@ -12,12 +12,12 @@ final class AdminWebService
     {
     }
 
-    public function dashboard(): void { $this->renderer->render('pages/admin-dashboard.html'); }
-    public function createExam(): void { $this->renderer->render('pages/exam-template.html'); }
-    public function analytics(): void { $this->renderer->render('pages/exam-analytics.html'); }
-    public function rolesPermissions(): void { $this->renderer->render('pages/roles-permissions.html'); }
-    public function settings(): void { $this->renderer->render('pages/system-settings.html'); }
-    public function questionRepository(): void { $this->renderer->render('pages/question-repository.html'); }
-    public function bulkUpload(): void { $this->renderer->render('pages/bulk-upload.html'); }
-    public function manualGrading(): void { $this->renderer->render('pages/manual-grading.html'); }
+    public function dashboard(): void { $this->renderer->render('admin/dashboard.php'); }
+    public function createExam(): void { $this->renderer->render('admin/exams/create.php'); }
+    public function analytics(): void { $this->renderer->render('admin/analytics.php'); }
+    public function rolesPermissions(): void { $this->renderer->render('admin/roles-permissions.php'); }
+    public function settings(): void { $this->renderer->render('admin/settings.php'); }
+    public function questionRepository(): void { $this->renderer->render('admin/questions/index.php'); }
+    public function bulkUpload(): void { $this->renderer->render('admin/questions/import.php'); }
+    public function manualGrading(): void { $this->renderer->render('admin/grading/manual.php'); }
 }
