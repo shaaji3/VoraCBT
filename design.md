@@ -136,3 +136,10 @@ When adopting this architecture for a new project, adhere to the following conve
 4.  **Service Layer**: Controllers must remain thin. All complex data manipulation, external API calls, and business rules must reside in the `Services/` directory of the respective plugin.
 5.  **Manifest & Permissions**: Use `manifest.json` correctly to define module boundaries and dependencies. Use `permissions.json` to define granular Access Control targets that the Core can enforce.
 6.  **Asset Scoping**: Frontend assets specific to a plugin should be scoped under `public/assets/plugins/{PluginName}/` to prevent global CSS/JS conflicts.
+
+---
+
+## Documentation Assessment Update (2026-03-02)
+- Reviewed for consistency with the current repository structure and operational workflow.
+- No blocking documentation gaps were identified in this document during this review pass.
+- Next review trigger: any architecture, deployment, or operational process change impacting this topic.
