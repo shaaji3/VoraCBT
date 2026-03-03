@@ -3,4 +3,16 @@
 
 declare(strict_types=1);
 
-echo "schedule-run stub invoked\n";
+$script = __DIR__ . '/auto-submit-expired';
+if (!is_file($script)) {
+    echo "schedule-run: auto-submit script not found\n";
+    exit(1);
+}
+
+passthru(escapeshellcmd($script), $code);
+if ($code !== 0) {
+    echo "schedule-run: auto-submit run failed\n";
+    exit($code);
+}
+
+echo "schedule-run completed\n";

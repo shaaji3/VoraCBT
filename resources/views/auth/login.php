@@ -38,7 +38,7 @@ ob_start();
                     <div class="d-flex justify-content-between align-items-center mb-1 ms-1">
                         <label for="password"
                             class="form-label fw-medium small text-muted-adaptive mb-0">Password</label>
-                        <a href="#"
+                        <a href="/forgot-password"
                             class="small text-primary fw-medium text-decoration-none hover-scale font-size-80">Forgot?</a>
                     </div>
                     <input id="password" name="password" type="password" class="form-control auth-input-clean w-100"
@@ -94,7 +94,7 @@ ob_start();
 
         <div class="card-footer bg-transparent border-top border-secondary border-opacity-10 p-4 text-center">
             <p class="text-muted-adaptive mb-0 font-size-75">
-                Don't have an account? <a href="#" class="text-primary text-decoration-none fw-bold">Contact Support</a>
+                Don't have an account? <a href="/contact-support" class="text-primary text-decoration-none fw-bold">Contact Support</a>
             </p>
         </div>
     </div>
@@ -102,8 +102,8 @@ ob_start();
     <div class="mt-4 text-center z-1">
         <p class="text-muted-adaptive mb-0 font-size-75">
             &copy; <?= date('Y') ?> CBT Enterprise Solutions.
-            <a href="#" class="text-muted-adaptive text-decoration-underline ms-2">Privacy</a>
-            <a href="#" class="text-muted-adaptive text-decoration-underline ms-2">Terms</a>
+            <a href="/privacy" class="text-muted-adaptive text-decoration-underline ms-2">Privacy</a>
+            <a href="/terms" class="text-muted-adaptive text-decoration-underline ms-2">Terms</a>
         </p>
     </div>
 </main>

@@ -26,4 +26,25 @@ final class AuthWebController
     {
         $this->service->twoFactor();
     }
+
+    public function forgotPassword(): void
+    {
+        $this->service->forgotPassword();
+    }
+
+    public function contactSupport(): void
+    {
+        $this->service->contactSupport();
+    }
+
+    public function privacy(): void
+    {
+        $this->service->privacy();
+    }
+
+    public function terms(): void
+    {
+        $this->service->terms();
+    }
 }
+

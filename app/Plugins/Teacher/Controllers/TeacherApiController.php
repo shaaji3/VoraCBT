@@ -37,6 +37,16 @@ final class TeacherApiController
         $this->service->deleteQuestion($id);
     }
 
+    public function previewQuestionImport(): void
+    {
+        $this->service->previewQuestionImport();
+    }
+
+    public function commitQuestionImport(): void
+    {
+        $this->service->commitQuestionImport();
+    }
+
     public function pendingManualGrading(): void
     {
         $this->service->pendingManualGrading();

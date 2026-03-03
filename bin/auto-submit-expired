@@ -1,0 +1,60 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use App\Core\Config\Environment;
+use App\Core\Database\DatabaseManager;
+
+Environment::getInstance();
+$db = DatabaseManager::getConnection();
+
+$rows = $db->fetchAllAssociative(
+    "SELECT s.id
+     FROM exam_sessions s
+     WHERE s.status = 'in_progress'"
+);
+
+$submitted = 0;
+$now = (new DateTimeImmutable())->format('Y-m-d H:i:s');
+
+foreach ($rows as $row) {
+    $sessionId = (string) ($row['id'] ?? '');
+    if ($sessionId === '') {
+        continue;
+    }
+
+    $session = $db->fetchAssociative(
+        'SELECT es.start_time, es.current_section_id, et.duration_minutes AS exam_duration, sec.duration_minutes AS section_duration FROM exam_sessions es JOIN exam_templates et ON es.exam_template_id = et.id LEFT JOIN exam_sections sec ON es.current_section_id = sec.id WHERE es.id = ?',
+        [$sessionId]
+    );
+
+    if (!$session || empty($session['start_time'])) {
+        continue;
+    }
+
+    $remaining = PHP_INT_MAX;
+    $nowTs = time();
+
+    if (!empty($session['exam_duration'])) {
+        $end = (new DateTimeImmutable((string) $session['start_time']))->modify('+' . (int)$session['exam_duration'] . ' minutes')->getTimestamp();
+        $remaining = min($remaining, $end - $nowTs);
+    }
+
+    if (!empty($session['current_section_id']) && !empty($session['section_duration'])) {
+        $sectionStart = $db->fetchOne('SELECT started_at FROM exam_session_sections WHERE exam_session_id = ? AND exam_section_id = ?', [$sessionId, $session['current_section_id']]);
+        if (is_string($sectionStart) && $sectionStart !== '') {
+            $end = (new DateTimeImmutable($sectionStart))->modify('+' . (int)$session['section_duration'] . ' minutes')->getTimestamp();
+            $remaining = min($remaining, $end - $nowTs);
+        }
+    }
+
+    if ($remaining < -30) {
+        $db->update('exam_sessions', ['status' => 'submitted', 'end_time' => $now, 'updated_at' => $now], ['id' => $sessionId]);
+        $submitted++;
+    }
+}
+
+echo sprintf("auto-submit-expired processed=%d submitted=%d\n", count($rows), $submitted);

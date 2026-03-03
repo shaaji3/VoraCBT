@@ -11,26 +11,44 @@
             </ol>
         </nav>
 
-        <div class="ms-auto d-flex align-items-center gap-4">
-            <!-- Search -->
+        <div class="ms-auto d-flex align-items-center gap-3">
             <div class="position-relative d-none d-lg-block" style="width: 320px;">
                 <span class="material-symbols-outlined position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary fs-5">search</span>
-                <input type="text" class="form-control bg-body-secondary border-0 ps-5 rounded-3" placeholder="Search exams, students...">
+                <input type="text" class="form-control bg-body-secondary border-0 ps-5 rounded-3" placeholder="Search exams, students..." data-ui-shell-search>
             </div>
 
-            <!-- Notification -->
-            <button class="btn btn-light btn-sm rounded-circle p-2 position-relative text-secondary hover-text-dark">
-                <span class="material-symbols-outlined fs-5">notifications</span>
-                <span class="position-absolute top-0 end-0 m-2 p-1 bg-danger border border-white rounded-circle"></span>
-            </button>
-
-            <!-- User Profile -->
-            <div class="d-flex align-items-center gap-3 ps-3 border-start">
-                <div class="text-end d-none d-sm-block lh-sm">
-                    <p class="mb-0 small fw-bold text-body"><?= $userName ?? 'Admin User' ?></p>
-                    <span class="text-secondary x-small" style="font-size: 0.7rem;"><?= $userRole ?? 'Head Teacher' ?></span>
+            <div class="dropdown" data-ui-shell-notifications data-ui-shell-notification-role="staff">
+                <button class="btn btn-light btn-sm rounded-circle p-2 position-relative text-secondary hover-text-dark" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">
+                    <span class="material-symbols-outlined fs-5">notifications</span>
+                    <span class="position-absolute top-0 end-0 m-2 p-1 bg-danger border border-white rounded-circle" data-ui-notification-dot></span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-0 ui-shell-menu" style="width: 320px;">
+                    <div class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
+                        <strong class="small">Notifications <span class="badge text-bg-secondary ms-1" data-ui-notification-count>0</span></strong>
+                        <button class="btn btn-link btn-sm text-decoration-none p-0" type="button" data-ui-mark-read>Mark all read</button>
+                    </div>
+                    <div class="list-group list-group-flush" data-ui-notification-list>
+                        <div class="list-group-item py-2 small">Exam schedule updated for JSS 2 Mathematics.</div>
+                        <div class="list-group-item py-2 small">3 essays are pending manual grading.</div>
+                        <div class="list-group-item py-2 small">Bulk import completed successfully.</div>
+                    </div>
                 </div>
-                <div class="avatar-circle border border-2 border-white shadow-sm" style="width: 40px; height: 40px; background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCJKcUpb8cVxs1PUT7YOH5R1P99ZYKlmwGuTtUyBC6-JP5SOyGyvDOIoBpLq5sWi2tncKQeZJyxRiJZUe9IzPjtrfOJgTQp8FkuFZ2l4a3cPNPthvxIK2ELurJitvhAXEA92h5mVuSP1bgM7qOBfXGBbeyWEcmiYGtWeCIhqRx7GbX9g5xiyo_mA8wKZxDOgje9Lnd-MUxQQaBKFkk4mE1FlA96dJnFUWBJuRyjrqEQlTxf2xLWzGnBeCS6XoKvT5sIJAxUjQbhzcY');"></div>
+            </div>
+
+            <div class="dropdown d-flex align-items-center gap-2 ps-2 border-start" data-ui-shell-profile>
+                <button class="btn btn-link d-flex align-items-center gap-2 text-decoration-none p-0" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="text-end d-none d-sm-block lh-sm">
+                        <p class="mb-0 small fw-bold text-body"><?= $userName ?? 'Admin User' ?></p>
+                        <span class="text-secondary" style="font-size: 0.7rem;"><?= $userRole ?? 'Head Teacher' ?></span>
+                    </div>
+                    <div class="avatar-circle border border-2 border-white shadow-sm" style="width: 40px; height: 40px; background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCJKcUpb8cVxs1PUT7YOH5R1P99ZYKlmwGuTtUyBC6-JP5SOyGyvDOIoBpLq5sWi2tncKQeZJyxRiJZUe9IzPjtrfOJgTQp8FkuFZ2l4a3cPNPthvxIK2ELurJitvhAXEA92h5mVuSP1bgM7qOBfXGBbeyWEcmiYGtWeCIhqRx7GbX9g5xiyo_mA8wKZxDOgje9Lnd-MUxQQaBKFkk4mE1FlA96dJnFUWBJuRyjrqEQlTxf2xLWzGnBeCS6XoKvT5sIJAxUjQbhzcY');"></div>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                    <li><a class="dropdown-item" href="/admin/settings">Profile settings</a></li>
+                    <li><a class="dropdown-item" href="/admin/roles-permissions">Role permissions</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="/auth/logout" data-ui-shell-logout>Logout</a></li>
+                </ul>
             </div>
         </div>
     </div>

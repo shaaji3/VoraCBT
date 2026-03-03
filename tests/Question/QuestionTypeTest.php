@@ -11,6 +11,9 @@ use App\Question\Type\NumericalType;
 use App\Question\Type\MatchingType;
 use App\Question\Type\PassageType;
 use App\Question\Type\ImageBasedType;
+use App\Question\Type\TrueFalseType;
+use App\Question\Type\DragDropType;
+use App\Question\Type\CaseStudyType;
 use App\Question\Type\QuestionTypeFactory;
 use App\Question\Exception\QuestionValidationException;
 use PHPUnit\Framework\TestCase;
@@ -173,10 +176,50 @@ class QuestionTypeTest extends TestCase
         $type->validate(['prompt' => 'Missing image']);
     }
 
+
+    public function testTrueFalseValidation(): void
+    {
+        $type = new TrueFalseType();
+        $type->validate(['prompt' => 'Sky is blue', 'correct_answer' => true]);
+        $this->assertTrue(true);
+    }
+
+    public function testDragDropValidation(): void
+    {
+        $type = new DragDropType();
+        $type->validate([
+            'prompt' => 'Match',
+            'items' => [['id' => 'a']],
+            'targets' => [['id' => '1']],
+            'correct_mapping' => ['a' => '1'],
+        ]);
+        $this->assertTrue(true);
+    }
+
+    public function testCaseStudyValidation(): void
+    {
+        $type = new CaseStudyType();
+        $type->validate([
+            'case_text' => 'Case description',
+            'questions' => [[
+                'type' => 'mcq',
+                'content' => [
+                    'prompt' => 'Q1',
+                    'options' => [['id' => '1', 'text' => 'A']],
+                    'correct_options' => ['1'],
+                ],
+            ]],
+        ]);
+        $this->assertTrue(true);
+    }
+
     public function testFactory(): void
     {
         $mcq = QuestionTypeFactory::create('mcq');
         $this->assertInstanceOf(MCQType::class, $mcq);
+        $this->assertInstanceOf(TrueFalseType::class, QuestionTypeFactory::create('true_false'));
+        $this->assertInstanceOf(DragDropType::class, QuestionTypeFactory::create('drag_drop'));
+        $this->assertInstanceOf(CaseStudyType::class, QuestionTypeFactory::create('case_study'));
 
         $this->expectException(\App\Question\Exception\QuestionException::class);
         QuestionTypeFactory::create('invalid_type');

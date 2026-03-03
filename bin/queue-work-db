@@ -3,19 +3,48 @@
 
 declare(strict_types=1);
 
-// Placeholder worker entrypoint for shared hosting cron usage.
-// Integrate with the platform's queue runner when available.
+require __DIR__ . '/../vendor/autoload.php';
+
+use App\Core\Config\Environment;
+use App\Core\Database\DatabaseManager;
+use App\Infrastructure\Queue\DatabaseQueue;
+
+Environment::getInstance();
 
 $options = getopt('', ['max-jobs::', 'max-time::', 'memory::', 'sleep::']);
-$maxJobs = $options['max-jobs'] ?? '100';
-$maxTime = $options['max-time'] ?? '50';
-$memory = $options['memory'] ?? '128';
-$sleep = $options['sleep'] ?? '1';
+$maxJobs = max(1, (int) ($options['max-jobs'] ?? 100));
+$maxTime = max(1, (int) ($options['max-time'] ?? 50));
+$memory = max(64, (int) ($options['memory'] ?? 256));
+$sleep = max(1, (int) ($options['sleep'] ?? 1));
 
-echo sprintf(
-    "queue-work-db stub invoked (max-jobs=%s, max-time=%s, memory=%sMB, sleep=%ss)\n",
-    $maxJobs,
-    $maxTime,
-    $memory,
-    $sleep
-);
+$db = DatabaseManager::getConnection();
+$queue = new DatabaseQueue($db);
+$startedAt = time();
+$processed = 0;
+
+while (true) {
+    if ((time() - $startedAt) >= $maxTime || $processed >= $maxJobs) {
+        break;
+    }
+
+    $job = $queue->pop();
+    if ($job === null) {
+        sleep($sleep);
+        continue;
+    }
+
+    try {
+        $job->handle();
+    } catch (Throwable $e) {
+        fwrite(STDERR, '[queue-work-db] job failed: ' . $e->getMessage() . PHP_EOL);
+    }
+
+    $processed++;
+
+    if (memory_get_usage(true) > ($memory * 1024 * 1024)) {
+        fwrite(STDERR, '[queue-work-db] memory limit reached; stopping worker.' . PHP_EOL);
+        break;
+    }
+}
+
+echo sprintf("queue-work-db processed=%d max-jobs=%d max-time=%d\n", $processed, $maxJobs, $maxTime);

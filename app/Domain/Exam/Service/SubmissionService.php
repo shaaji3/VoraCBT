@@ -80,7 +80,7 @@ class SubmissionService extends BaseService
             ], ['id' => $sessionId]);
 
             // Trigger grading job via Queue
-            $this->queue->push('App\Domain\Grading\Job\GradingJob', ['exam_session_id' => $sessionId]);
+            $this->queue->push('App\Domain\Grading\Job\GradingJob', ['session_id' => $sessionId]);
 
             $this->db->commit();
         } catch (Exception $e) {

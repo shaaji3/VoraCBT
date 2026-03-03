@@ -54,6 +54,7 @@ export class QuestionRenderer {
         switch (question.type) {
             case 'multiple_choice':
             case 'mcq':
+            case 'true_false':
                 return this.renderMCQ(question, answer);
             case 'essay':
                 return this.renderEssay(question, answer);
@@ -63,6 +64,10 @@ export class QuestionRenderer {
                 return this.renderNumerical(question, answer);
             case 'matching':
                 return this.renderMatching(question, answer);
+            case 'drag_drop':
+                return this.renderDragDrop(question, answer);
+            case 'case_study':
+                return this.renderCaseStudy(question, answer);
             default:
                 return `<div class="alert alert-danger">Unsupported question type: ${question.type}</div>`;
         }
@@ -120,6 +125,37 @@ export class QuestionRenderer {
     renderMatching(question, answer) {
         // Placeholder for matching UI (drag and drop or dropdowns)
         return `<div class="alert alert-info">Matching question UI to be implemented.</div>`;
+    }
+
+
+    renderDragDrop(question, answer) {
+        const items = Array.isArray(question.items) ? question.items : [];
+        const targets = Array.isArray(question.targets) ? question.targets : [];
+        if (items.length === 0 || targets.length === 0) {
+            return '<div class="alert alert-warning">Drag & drop configuration is incomplete.</div>';
+        }
+
+        return `
+            <div class="row g-2">
+                ${items.map((item, idx) => `
+                    <div class="col-md-6">
+                        <label class="form-label">${item.label || item.text || item.id || `Item ${idx + 1}`}</label>
+                        <select class="form-select" name="question_${question.id}" data-item-id="${item.id || idx}">
+                            <option value="">Select target</option>
+                            ${targets.map((t) => `<option value="${t.id}">${t.label || t.id}</option>`).join('')}
+                        </select>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    renderCaseStudy(question, answer) {
+        const caseText = question.case_text || question.passage || question.content || '';
+        return `
+            <div class="alert alert-light border mb-3">${caseText}</div>
+            <div class="alert alert-info">Case-study nested response UI can be rendered via sub-question views.</div>
+        `;
     }
 
     attachListeners(questionId) {

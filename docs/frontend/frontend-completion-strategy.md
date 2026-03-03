@@ -81,7 +81,7 @@ All of the above are currently rendered via static template passthrough in plugi
 
 ## 3.4 UX + Accessibility gaps
 
-- Multiple dead links (`href="#"`) and placeholder actions remain.
+- Placeholder/dead-link cleanup has started, but remaining pages still need a full audit pass for complete removal.
 - Missing keyboard flow guarantees for exam-critical surfaces and grading workflows.
 - Incomplete ARIA semantics and focus-management consistency across modals/alerts/navigation.
 

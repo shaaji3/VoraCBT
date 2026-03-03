@@ -11,22 +11,40 @@ class QuestionManager {
 
     async init() {
         if (!this.tableBody) return;
+
+        const initialQuery = new URLSearchParams(window.location.search).get('q') || '';
+        if (this.searchInput) {
+            this.searchInput.value = initialQuery;
+        }
+
         this.attachListeners();
-        await this.loadQuestions();
+        await this.loadQuestions(initialQuery);
     }
 
     attachListeners() {
         this.searchInput?.addEventListener('input', this.debounce((event) => {
-            this.filterRows(event.target.value || '');
+            const query = event.target.value || '';
+            this.filterRows(query);
+            this.syncQueryParam(query);
             this.renderRows();
         }, 200));
     }
 
-    async loadQuestions() {
+    syncQueryParam(query) {
+        const url = new URL(window.location.href);
+        if (query.trim()) {
+            url.searchParams.set('q', query.trim());
+        } else {
+            url.searchParams.delete('q');
+        }
+        window.history.replaceState({}, '', `${url.pathname}${url.search}`);
+    }
+
+    async loadQuestions(initialQuery = '') {
         this.tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary py-4">Loading…</td></tr>';
         const response = await this.api.get('/teacher/questions/repository?limit=100');
         this.items = Array.isArray(response?.data?.items) ? response.data.items : [];
-        this.filtered = [...this.items];
+        this.filterRows(initialQuery);
         this.renderRows();
     }
 
@@ -69,9 +87,18 @@ class QuestionManager {
                 if (!window.confirm('Archive this question?')) return;
                 try {
                     await this.api.delete(`/teacher/questions/${encodeURIComponent(id)}`);
-                    await this.loadQuestions();
+                    await this.loadQuestions(this.searchInput?.value || '');
+                    const toastEl = document.getElementById('ui-shell-toast');
+                    if (toastEl) {
+                        toastEl.querySelector('.toast-body').textContent = 'Question archived successfully.';
+                        bootstrap.Toast.getOrCreateInstance(toastEl).show();
+                    }
                 } catch (error) {
-                    window.alert(error.message || 'Failed to archive question.');
+                    const toastEl = document.getElementById('ui-shell-toast');
+                    if (toastEl) {
+                        toastEl.querySelector('.toast-body').textContent = error.message || 'Failed to archive question.';
+                        bootstrap.Toast.getOrCreateInstance(toastEl).show();
+                    }
                 }
             });
         });

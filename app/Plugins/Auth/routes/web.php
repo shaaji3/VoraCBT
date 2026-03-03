@@ -10,6 +10,10 @@ return static function (RouteCollector $r): void {
     $r->get('/', [AuthWebController::class, 'home']);
     $r->get('/login', [AuthWebController::class, 'login']);
     $r->get('/login/2fa', [AuthWebController::class, 'twoFactor']);
+    $r->get('/forgot-password', [AuthWebController::class, 'forgotPassword']);
+    $r->get('/contact-support', [AuthWebController::class, 'contactSupport']);
+    $r->get('/privacy', [AuthWebController::class, 'privacy']);
+    $r->get('/terms', [AuthWebController::class, 'terms']);
 
     $r->post('/auth/login', [AuthController::class, 'login']);
     $r->post('/auth/logout', [AuthController::class, 'logout']);
