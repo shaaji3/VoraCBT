@@ -74,7 +74,7 @@ if (($_ENV['APP_DEBUG'] ?? 'false') === 'true') {
 }
 
 // 4. Plugin bootstrapping
-(new PluginManager())->loadAndBoot();
+(new App\Core\Plugins\PluginManager())->loadAndBoot();
 
 // 5. Routing Dispatch
 use FastRoute\Dispatcher;
@@ -219,4 +219,3 @@ switch ($routeInfo[0]) {
         }
         break;
 }
-

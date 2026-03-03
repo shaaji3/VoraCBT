@@ -8,9 +8,15 @@ use App\Domain\Exam\Service\ExamSessionService;
 use App\Domain\Exam\Service\SubmissionService;
 use App\Domain\Exam\Service\RandomizationService;
 use App\Domain\Exam\Service\TimerService;
+use App\Domain\Proctoring\Service\ProctoringService;
+use App\Domain\Proctoring\Service\SessionIntegrityService;
+use App\Domain\Proctoring\Service\DeviceFingerprintService;
+use App\Core\Service\AuditLogService;
+use App\Core\Service\RateLimitService;
 use App\Core\Database\Migration\MigrationRunner;
 use App\Core\Database\DatabaseManager;
 use App\Infrastructure\Queue\QueueInterface;
+use App\Infrastructure\Cache\FileCache;
 use PHPUnit\Framework\TestCase;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
@@ -43,8 +49,19 @@ class SubmissionServiceTest extends TestCase
         $queue = $this->createMock(QueueInterface::class);
         $queue->method('push')->willReturn('job-id');
 
-        $this->sessionService = new ExamSessionService($randomizationService, $timerService, $queue);
-        $this->submissionService = new SubmissionService($timerService, $queue);
+        $proctoringService = new ProctoringService(new AuditLogService(), new DeviceFingerprintService());
+        $integrityService = new SessionIntegrityService();
+        $rateLimitService = new RateLimitService(new FileCache(__DIR__ . '/../../../storage/cache/test-rate-limit'));
+
+        $this->sessionService = new ExamSessionService(
+            $randomizationService,
+            $timerService,
+            $queue,
+            $proctoringService,
+            $integrityService,
+            $rateLimitService
+        );
+        $this->submissionService = new SubmissionService($timerService, $queue, $integrityService, $rateLimitService);
     }
 
     private function truncateTables(): void
@@ -85,9 +102,11 @@ class SubmissionServiceTest extends TestCase
             'updated_at' => (new DateTime())->format('Y-m-d H:i:s')
         ]);
 
-        $sessionId = $this->sessionService->startSession($templateId, 'user-1');
+        $sessionData = $this->sessionService->startSession($templateId, 'user-1');
+        $sessionId = $sessionData['id'];
 
         $this->assertIsString($sessionId);
+        $this->assertIsString($sessionData['token']);
 
         $session = $this->db->fetchAssociative('SELECT * FROM exam_sessions WHERE id = ?', [$sessionId]);
         $this->assertEquals('in_progress', $session['status']);
@@ -123,14 +142,15 @@ class SubmissionServiceTest extends TestCase
             'updated_at' => (new DateTime())->format('Y-m-d H:i:s')
         ]);
 
-        $sessionId = $this->sessionService->startSession($templateId, 'user-1');
+        $sessionData = $this->sessionService->startSession($templateId, 'user-1');
+        $sessionId = $sessionData['id'];
 
         // Check session questions
         $sessionQ = $this->db->fetchOne('SELECT question_id FROM exam_session_questions WHERE exam_session_id = ?', [$sessionId]);
         $this->assertEquals($questionId, $sessionQ);
 
         // Save answer
-        $this->sessionService->saveAnswer($sessionId, $questionId, ['option_id' => 1]);
+        $this->sessionService->saveAnswer($sessionId, $questionId, ['option_id' => 1], $sessionData['token']);
 
         $answer = $this->db->fetchAssociative('SELECT * FROM exam_session_answers WHERE exam_session_id = ? AND question_id = ?', [$sessionId, $questionId]);
         $this->assertNotEmpty($answer);
@@ -152,7 +172,8 @@ class SubmissionServiceTest extends TestCase
             'updated_at' => (new DateTime())->format('Y-m-d H:i:s')
         ]);
 
-        $sessionId = $this->sessionService->startSession($templateId, 'user-1');
+        $sessionData = $this->sessionService->startSession($templateId, 'user-1');
+        $sessionId = $sessionData['id'];
 
         $this->submissionService->submitSession($sessionId);
 
@@ -172,7 +193,8 @@ class SubmissionServiceTest extends TestCase
             'updated_at' => (new DateTime())->format('Y-m-d H:i:s')
         ]);
 
-        $sessionId = $this->sessionService->startSession($templateId, 'user-1');
+        $sessionData = $this->sessionService->startSession($templateId, 'user-1');
+        $sessionId = $sessionData['id'];
 
         // Manipulate start time to be 20 mins ago (expired)
         $this->db->update('exam_sessions', [
